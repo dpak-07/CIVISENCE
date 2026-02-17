@@ -1,0 +1,418 @@
+﻿{
+  "info": {
+    "name": "CiviSense Backend API",
+    "description": "Complete endpoint tests for CiviSense backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""]}
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Citizen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code < 300) {",
+                  "  const r = pm.response.json();",
+                  "  if (r.access_token) pm.collectionVariables.set('accessToken', r.access_token);",
+                  "  if (r.refresh_token) pm.collectionVariables.set('refreshToken', r.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{citizenEmail}}\",\n  \"password\": \"{{citizenPassword}}\",\n  \"full_name\": \"Citizen One\",\n  \"phone\": \"9999999999\",\n  \"role\": \"citizen\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"]}
+          }
+        },
+        {
+          "name": "Login Citizen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) pm.collectionVariables.set('accessToken', r.access_token);",
+                  "if (r.refresh_token) pm.collectionVariables.set('refreshToken', r.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{citizenEmail}}\",\n  \"password\": \"{{citizenPassword}}\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"]}
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api", "auth", "refresh"]}
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"]}
+          }
+        },
+        {
+          "name": "Update FCM Token",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fcm_token\": \"demo-fcm-token-123\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/fcm-token", "host": ["{{baseUrl}}"], "path": ["api", "auth", "fcm-token"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issues",
+      "item": [
+        {
+          "name": "Create Issue (multipart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code < 300) {",
+                  "  const r = pm.response.json();",
+                  "  if (r.id) pm.collectionVariables.set('issueId', r.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "title", "value": "Large pothole near junction", "type": "text"},
+                {"key": "description", "value": "Deep pothole causing traffic and bike falls", "type": "text"},
+                {"key": "longitude", "value": "77.5946", "type": "text"},
+                {"key": "latitude", "value": "12.9716", "type": "text"},
+                {"key": "address", "value": "Main Street Junction", "type": "text"},
+                {"key": "category", "value": "pothole", "type": "text"},
+                {"key": "ward_number", "value": "12", "type": "text"},
+                {"key": "images", "type": "file", "src": "{{imageFilePath}}"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/api/issues", "host": ["{{baseUrl}}"], "path": ["api", "issues"]}
+          }
+        },
+        {
+          "name": "List Issues",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/issues?skip=0&limit=20", "host": ["{{baseUrl}}"], "path": ["api", "issues"], "query": [{"key": "skip", "value": "0"}, {"key": "limit", "value": "20"}]}
+          }
+        },
+        {
+          "name": "My Reports",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/issues/my/reports", "host": ["{{baseUrl}}"], "path": ["api", "issues", "my", "reports"]}
+          }
+        },
+        {
+          "name": "Get Issue by ID",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/issues/{{issueId}}", "host": ["{{baseUrl}}"], "path": ["api", "issues", "{{issueId}}"]}
+          }
+        },
+        {
+          "name": "Get Issue Timeline",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/issues/{{issueId}}/timeline", "host": ["{{baseUrl}}"], "path": ["api", "issues", "{{issueId}}", "timeline"]}
+          }
+        },
+        {
+          "name": "Update Issue Status (staff/admin)",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staffAccessToken}}", "type": "string"}]},
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"note\": \"Work order created\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/issues/{{issueId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "issues", "{{issueId}}", "status"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report (Intelligent)",
+      "item": [
+        {
+          "name": "Unified Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code < 300) {",
+                  "  const r = pm.response.json();",
+                  "  if (r.complaint_id) pm.collectionVariables.set('complaintId', r.complaint_id);",
+                  "  if (r.issue_id) pm.collectionVariables.set('issueId', r.issue_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "title", "value": "Water leakage near market", "type": "text"},
+                {"key": "description", "value": "Burst pipeline and flooded road", "type": "text"},
+                {"key": "latitude", "value": "12.9716", "type": "text"},
+                {"key": "longitude", "value": "77.5946", "type": "text"},
+                {"key": "ward_number", "value": "12", "type": "text"},
+                {"key": "image", "type": "file", "src": "{{imageFilePath}}"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/api/report", "host": ["{{baseUrl}}"], "path": ["api", "report"]}
+          }
+        },
+        {
+          "name": "Report Status by Complaint ID",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/report/{{complaintId}}", "host": ["{{baseUrl}}"], "path": ["api", "report", "{{complaintId}}"]}
+          }
+        },
+        {
+          "name": "Report Text Only",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "title", "value": "Garbage not cleared", "type": "text"},
+                {"key": "description", "value": "Garbage pile up for 3 days", "type": "text"},
+                {"key": "latitude", "value": "12.9716", "type": "text"},
+                {"key": "longitude", "value": "77.5946", "type": "text"},
+                {"key": "ward_number", "value": "12", "type": "text"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/api/report/text", "host": ["{{baseUrl}}"], "path": ["api", "report", "text"]}
+          }
+        },
+        {
+          "name": "Report with One Image File",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "title", "value": "Streetlight broken", "type": "text"},
+                {"key": "description", "value": "Pole light not working at night", "type": "text"},
+                {"key": "latitude", "value": "12.9716", "type": "text"},
+                {"key": "longitude", "value": "77.5946", "type": "text"},
+                {"key": "ward_number", "value": "12", "type": "text"},
+                {"key": "image", "type": "file", "src": "{{imageFilePath}}"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/api/report/image", "host": ["{{baseUrl}}"], "path": ["api", "report", "image"]}
+          }
+        },
+        {
+          "name": "Report with One Voice File",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "latitude", "value": "12.9716", "type": "text"},
+                {"key": "longitude", "value": "77.5946", "type": "text"},
+                {"key": "ward_number", "value": "12", "type": "text"},
+                {"key": "title", "value": "Voice complaint", "type": "text"},
+                {"key": "description", "value": "Voice uploaded report", "type": "text"},
+                {"key": "voice", "type": "file", "src": "{{voiceFilePath}}"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/api/report/voice", "host": ["{{baseUrl}}"], "path": ["api", "report", "voice"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Summary",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/analytics/summary", "host": ["{{baseUrl}}"], "path": ["api", "analytics", "summary"]}
+          }
+        },
+        {
+          "name": "Heatmap",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/analytics/heatmap?category=pothole", "host": ["{{baseUrl}}"], "path": ["api", "analytics", "heatmap"], "query": [{"key": "category", "value": "pothole"}]}
+          }
+        },
+        {
+          "name": "Trends (staff/admin)",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staffAccessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/analytics/trends?days=30", "host": ["{{baseUrl}}"], "path": ["api", "analytics", "trends"], "query": [{"key": "days", "value": "30"}]}
+          }
+        },
+        {
+          "name": "Department Metrics (staff/admin)",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staffAccessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/api/analytics/department/{{departmentId}}", "host": ["{{baseUrl}}"], "path": ["api", "analytics", "department", "{{departmentId}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Staff Auth",
+      "item": [
+        {
+          "name": "Login Staff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) pm.collectionVariables.set('staffAccessToken', r.access_token);",
+                  "if (r.refresh_token) pm.collectionVariables.set('staffRefreshToken', r.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{staffEmail}}\",\n  \"password\": \"{{staffPassword}}\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"]}
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8000"},
+    {"key": "citizenEmail", "value": "citizen1@example.com"},
+    {"key": "citizenPassword", "value": "citizen123"},
+    {"key": "staffEmail", "value": "staff.road@civisense.gov.in"},
+    {"key": "staffPassword", "value": "staff123"},
+    {"key": "accessToken", "value": ""},
+    {"key": "refreshToken", "value": ""},
+    {"key": "staffAccessToken", "value": ""},
+    {"key": "staffRefreshToken", "value": ""},
+    {"key": "issueId", "value": ""},
+    {"key": "complaintId", "value": ""},
+    {"key": "departmentId", "value": ""},
+    {"key": "imageFilePath", "value": ""},
+    {"key": "voiceFilePath", "value": ""}
+  ]
+}

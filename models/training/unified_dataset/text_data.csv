@@ -1,0 +1,101 @@
+text,category
+Large pothole on Main Street causing traffic issues,pothole
+Deep crater in the road near intersection,pothole
+Dangerous hole in pavement needs immediate repair,pothole
+Road has multiple potholes affecting vehicles,pothole
+Pothole filled with water creating hazard,pothole
+Huge pit in the middle of the street,pothole
+Road damage with several potholes,pothole
+Deep pothole causing tire damage,pothole
+Multiple potholes on residential street,pothole
+Large hole in road surface,pothole
+Garbage pile accumulating near park entrance,garbage
+Overflowing trash bins not collected for days,garbage
+Waste dumped illegally on street corner,garbage
+Litter scattered across public area,garbage
+Garbage heap creating foul smell,garbage
+Trash not picked up for over a week,garbage
+Illegal dumping of construction waste,garbage
+Overflowing dumpster needs attention,garbage
+Waste accumulation near residential area,garbage
+Garbage bags left on sidewalk,garbage
+Streetlight not working on 5th Avenue,broken_streetlight
+Broken lamp post needs replacement,broken_streetlight
+Street lighting completely out in neighborhood,broken_streetlight
+Multiple streetlights not functioning,broken_streetlight
+Dark street due to broken lights,broken_streetlight
+Streetlight bulb burned out,broken_streetlight
+Non-functional street lamp creating safety issue,broken_streetlight
+Lighting pole damaged and not working,broken_streetlight
+Street lights flickering and malfunctioning,broken_streetlight
+Broken streetlight causing visibility issues,broken_streetlight
+Water pipe burst flooding the street,water_leakage
+Leaking water main wasting resources,water_leakage
+Broken water pipe causing damage,water_leakage
+Water overflow from underground pipe,water_leakage
+Continuous water leak from municipal line,water_leakage
+Burst pipe flooding residential area,water_leakage
+Water leakage creating puddles on road,water_leakage
+Broken tap leaking water constantly,water_leakage
+Water pipe leak needs urgent repair,water_leakage
+Major water leakage from supply line,water_leakage
+Drainage system completely blocked,drainage_overflow
+Sewer overflow creating health hazard,drainage_overflow
+Clogged drain causing water accumulation,drainage_overflow
+Gutter overflowing during rain,drainage_overflow
+Blocked drainage system needs cleaning,drainage_overflow
+Manhole overflowing with sewage,drainage_overflow
+Drainage pipe clogged with debris,drainage_overflow
+Sewer backup in residential area,drainage_overflow
+Stormwater drain blocked and overflowing,drainage_overflow
+Drainage overflow causing flooding,drainage_overflow
+Road surface severely cracked and damaged,road_damage
+Pavement broken and uneven,road_damage
+Major road damage affecting traffic flow,road_damage
+Crumbling road surface needs repair,road_damage
+Road completely deteriorated,road_damage
+Broken pavement creating hazard,road_damage
+Road surface cracking extensively,road_damage
+Damaged road with large cracks,road_damage
+Road infrastructure failing,road_damage
+Severe road damage requiring reconstruction,road_damage
+Pothole causing vehicle damage on highway,pothole
+Multiple potholes on main road,pothole
+Deep hole in asphalt surface,pothole
+Road crater needs immediate attention,pothole
+Pothole growing larger daily,pothole
+Garbage collection missed for two weeks,garbage
+Trash overflow at collection point,garbage
+Illegal waste dumping site,garbage
+Garbage scattered by animals,garbage
+Overflowing bins attracting pests,garbage
+Streetlight pole leaning dangerously,broken_streetlight
+All lights out on entire street,broken_streetlight
+Broken light fixture hanging loose,broken_streetlight
+Streetlight damaged in accident,broken_streetlight
+Non-working lights creating unsafe area,broken_streetlight
+Major water leak flooding intersection,water_leakage
+Broken hydrant spraying water,water_leakage
+Underground pipe leak visible on surface,water_leakage
+Water main break emergency,water_leakage
+Leaking pipe wasting gallons of water,water_leakage
+Sewer drain completely blocked,drainage_overflow
+Drainage system backing up,drainage_overflow
+Overflow from storm drain,drainage_overflow
+Clogged sewer causing problems,drainage_overflow
+Drainage infrastructure failing,drainage_overflow
+Road completely broken down,road_damage
+Pavement disintegrating rapidly,road_damage
+Major cracks in road surface,road_damage
+Road damage from heavy vehicles,road_damage
+Deteriorating road conditions,road_damage
+Dangerous pothole on school route,pothole
+Pothole repair needed urgently,pothole
+Large depression in road,pothole
+Road surface collapsing,pothole
+Pothole filled with debris,pothole
+Uncollected garbage creating nuisance,garbage
+Waste management issue in area,garbage
+Garbage piling up on street,garbage
+Trash bins overflowing constantly,garbage
+Illegal dumping continues,garbage

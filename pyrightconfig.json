@@ -1,0 +1,43 @@
+{
+    "include": [
+        "backend/**/*.py",
+        "ai_service/**/*.py",
+        "models/**/*.py"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        ".git",
+        ".expo",
+        "CIVISENCE",
+        "CIVISENCE-WEBSITE"
+    ],
+    "pythonVersion": "3.13",
+    "pythonPlatform": "Windows",
+    "typeCheckingMode": "basic",
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "executionEnvironments": [
+        {
+            "root": "backend",
+            "pythonVersion": "3.13",
+            "extraPaths": [
+                "backend"
+            ]
+        },
+        {
+            "root": "ai_service",
+            "pythonVersion": "3.13",
+            "extraPaths": [
+                "ai_service"
+            ]
+        },
+        {
+            "root": "models/training",
+            "pythonVersion": "3.13",
+            "extraPaths": [
+                "models/training"
+            ]
+        }
+    ]
+}

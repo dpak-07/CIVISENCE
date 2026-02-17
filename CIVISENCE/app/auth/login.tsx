@@ -8,33 +8,33 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "../../store/authStore";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { login, isLoading, error, clearError } = useAuthStore();
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Please fill in all fields");
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
-    setLoading(true);
+
     try {
-      // Mock API call
-      setTimeout(() => {
-        setLoading(false);
-        router.replace("/(tabs)");
-      }, 1500);
-    } catch (error) {
-      setLoading(false);
-      alert("Login failed");
+      await login(email.trim().toLowerCase(), password);
+      // Navigate to main app on successful login
+      router.replace("/dashboard");
+    } catch (error: any) {
+      Alert.alert("Login Failed", error.message || "Invalid email or password");
     }
   };
 
@@ -115,8 +115,8 @@ export default function Login() {
             colors={["#2563EB", "#1d4ed8"]}
             style={styles.button}
           >
-            <Pressable onPress={handleLogin} disabled={loading}>
-              {loading ? (
+            <Pressable onPress={handleLogin} disabled={isLoading}>
+              {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.buttonText}>Sign In</Text>

@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: civisense-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: civisense2024
+      MONGO_INITDB_DATABASE: civisense
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - civisense-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: civisense-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:civisense2024@mongodb:27017/civisense?authSource=admin
+      - DATABASE_NAME=civisense
+      - JWT_SECRET_KEY=your-secret-key-change-in-production
+      - AI_SERVICE_URL=http://ai-service:8001
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+    depends_on:
+      - mongodb
+      - ai-service
+    volumes:
+      - ./backend:/app
+      - models_data:/app/models
+    networks:
+      - civisense-network
+
+  # AI Service
+  ai-service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    container_name: civisense-ai-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./ai_service:/app
+      - models_data:/app/models
+    networks:
+      - civisense-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  models_data:
+    driver: local
+
+networks:
+  civisense-network:
+    driver: bridge
