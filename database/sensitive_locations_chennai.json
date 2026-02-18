@@ -1,0 +1,1382 @@
+[
+  {
+    "name": "Anna Adarsh Senior Secondary School",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.232108,
+        13.080736
+      ]
+    }
+  },
+  {
+    "name": "SBOA School and Junior College",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.20786,
+        13.095649
+      ]
+    }
+  },
+  {
+    "name": "Chettinad Vidyashram",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.251762,
+        13.028714
+      ]
+    }
+  },
+  {
+    "name": "PSBB Senior Secondary School KK Nagar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2126,
+        13.0418
+      ]
+    }
+  },
+  {
+    "name": "Velammal Main School Mogappair",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.176909,
+        13.08473
+      ]
+    }
+  },
+  {
+    "name": "St Bedes Anglo Indian Higher Secondary School",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.26954,
+        13.031171
+      ]
+    }
+  },
+  {
+    "name": "Don Bosco School Egmore",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.254392,
+        13.075642
+      ]
+    }
+  },
+  {
+    "name": "Chinmaya Vidyalaya Anna Nagar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.207327,
+        13.087555
+      ]
+    }
+  },
+  {
+    "name": "DAV Boys Senior Secondary School Gopalapuram",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.250981,
+        13.050488
+      ]
+    }
+  },
+  {
+    "name": "National Public School Gopalapuram",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.249724,
+        13.045913
+      ]
+    }
+  },
+  {
+    "name": "Lady Andal School",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.23766,
+        13.070894
+      ]
+    }
+  },
+  {
+    "name": "Padma Seshadri Bala Bhavan T Nagar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.238098,
+        13.040965
+      ]
+    }
+  },
+  {
+    "name": "Hindu Senior Secondary School Triplicane",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.276744,
+        13.057932
+      ]
+    }
+  },
+  {
+    "name": "St Patricks Anglo Indian School Adyar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.257677,
+        13.009925
+      ]
+    }
+  },
+  {
+    "name": "Vidya Mandir Mylapore",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.267911,
+        13.031917
+      ]
+    }
+  },
+  {
+    "name": "MCC Higher Secondary School Chetpet",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.243378,
+        13.071931
+      ]
+    }
+  },
+  {
+    "name": "Rosary Matriculation School Santhome",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.278032,
+        13.03019
+      ]
+    }
+  },
+  {
+    "name": "Asan Memorial Senior Secondary School",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.239136,
+        13.068031
+      ]
+    }
+  },
+  {
+    "name": "Good Shepherd Matriculation School Nungambakkam",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.241417,
+        13.064564
+      ]
+    }
+  },
+  {
+    "name": "Kendriya Vidyalaya IIT Chennai",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.233627,
+        13.010584
+      ]
+    }
+  },
+  {
+    "name": "Kendriya Vidyalaya Anna Nagar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.196512,
+        13.096056
+      ]
+    }
+  },
+  {
+    "name": "Kendriya Vidyalaya Gill Nagar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.225473,
+        13.072795
+      ]
+    }
+  },
+  {
+    "name": "Chennai Higher Secondary School Nungambakkam",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.241992,
+        13.059638
+      ]
+    }
+  },
+  {
+    "name": "Sherwood Hall Senior Secondary School Chetpet",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.24135,
+        13.073664
+      ]
+    }
+  },
+  {
+    "name": "Sishya School Adyar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.255404,
+        13.012187
+      ]
+    }
+  },
+  {
+    "name": "The Schram Academy Maduravoyal",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.171662,
+        13.068465
+      ]
+    }
+  },
+  {
+    "name": "Velammal Vidyalaya Alapakkam",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.182694,
+        13.04262
+      ]
+    }
+  },
+  {
+    "name": "Bhavans Rajaji Vidyashram Kilpauk",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.232768,
+        13.078086
+      ]
+    }
+  },
+  {
+    "name": "Sri Sankara Senior Secondary School Adyar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.256514,
+        13.015793
+      ]
+    }
+  },
+  {
+    "name": "Modern Senior Secondary School Nanganallur",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.192227,
+        13.031595
+      ]
+    }
+  },
+  {
+    "name": "St Johns Senior Secondary School Mandaveli",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.271607,
+        13.024447
+      ]
+    }
+  },
+  {
+    "name": "St Michaels Academy Adyar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.259092,
+        13.012894
+      ]
+    }
+  },
+  {
+    "name": "Bala Vidya Mandir Adyar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.262458,
+        13.007262
+      ]
+    }
+  },
+  {
+    "name": "Kola Saraswathi Vaishnav Senior Secondary School",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.230528,
+        13.08307
+      ]
+    }
+  },
+  {
+    "name": "St Anthonys Anglo Indian Higher Secondary School Egmore",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.255224,
+        13.074254
+      ]
+    }
+  },
+  {
+    "name": "Chennai Public School Anna Nagar",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.186272,
+        13.093385
+      ]
+    }
+  },
+  {
+    "name": "Alpha Matriculation Higher Secondary School Porur",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.181624,
+        13.039032
+      ]
+    }
+  },
+  {
+    "name": "Everwin Vidhyashram Kolathur",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.218567,
+        13.129549
+      ]
+    }
+  },
+  {
+    "name": "Jaigopal Garodia Vivekananda Vidyalaya",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.159743,
+        13.11392
+      ]
+    }
+  },
+  {
+    "name": "Spartan Matriculation School Mogappair",
+    "type": "school",
+    "priorityWeight": 3,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.18248,
+        13.090343
+      ]
+    }
+  },
+  {
+    "name": "Apollo Hospital Greams Road",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.25127,
+        13.063832
+      ]
+    }
+  },
+  {
+    "name": "MIOT International Manapakkam",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.186932,
+        13.021335
+      ]
+    }
+  },
+  {
+    "name": "Government General Hospital Chennai",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.281609,
+        13.080995
+      ]
+    }
+  },
+  {
+    "name": "Kauvery Hospital Alwarpet",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.254969,
+        13.037993
+      ]
+    }
+  },
+  {
+    "name": "Fortis Malar Hospital Adyar",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.257896,
+        13.005246
+      ]
+    }
+  },
+  {
+    "name": "SIMS Hospital Vadapalani",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.211983,
+        13.051126
+      ]
+    }
+  },
+  {
+    "name": "Vijaya Hospital Vadapalani",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.209716,
+        13.050809
+      ]
+    }
+  },
+  {
+    "name": "Sri Ramachandra Medical Centre Porur",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.188289,
+        13.035818
+      ]
+    }
+  },
+  {
+    "name": "Gleneagles Global Health City Perumbakkam",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.217596,
+        13.006601
+      ]
+    }
+  },
+  {
+    "name": "Stanley Medical College Hospital",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.285593,
+        13.106275
+      ]
+    }
+  },
+  {
+    "name": "Kilpauk Medical College Hospital",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.233997,
+        13.077086
+      ]
+    }
+  },
+  {
+    "name": "Rajiv Gandhi Government Women and Children Hospital",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.260177,
+        13.072533
+      ]
+    }
+  },
+  {
+    "name": "Institute of Child Health Egmore",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.259746,
+        13.074007
+      ]
+    }
+  },
+  {
+    "name": "Cancer Institute Adyar",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.241887,
+        13.00621
+      ]
+    }
+  },
+  {
+    "name": "Government Multi Super Speciality Hospital Omandurar",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.250511,
+        13.060688
+      ]
+    }
+  },
+  {
+    "name": "Billroth Hospitals Shenoy Nagar",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.224832,
+        13.078996
+      ]
+    }
+  },
+  {
+    "name": "MGM Healthcare Aminjikarai",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.218124,
+        13.073799
+      ]
+    }
+  },
+  {
+    "name": "Prashanth Super Speciality Hospital Chetpet",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.239936,
+        13.07303
+      ]
+    }
+  },
+  {
+    "name": "Sundaram Medical Foundation Anna Nagar",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.211449,
+        13.092751
+      ]
+    }
+  },
+  {
+    "name": "ESIC Medical College Hospital KK Nagar",
+    "type": "hospital",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.204344,
+        13.04293
+      ]
+    }
+  },
+  {
+    "name": "Chennai Central Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.274665,
+        13.082695
+      ]
+    }
+  },
+  {
+    "name": "Government Estate Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.267391,
+        13.069601
+      ]
+    }
+  },
+  {
+    "name": "LIC Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.25896,
+        13.064487
+      ]
+    }
+  },
+  {
+    "name": "Thousand Lights Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.254673,
+        13.058198
+      ]
+    }
+  },
+  {
+    "name": "AG-DMS Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.248842,
+        13.044682
+      ]
+    }
+  },
+  {
+    "name": "Teynampet Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.245104,
+        13.038213
+      ]
+    }
+  },
+  {
+    "name": "Nandanam Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.24262,
+        13.031865
+      ]
+    }
+  },
+  {
+    "name": "Saidapet Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.220657,
+        13.023534
+      ]
+    }
+  },
+  {
+    "name": "Little Mount Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.223914,
+        13.014693
+      ]
+    }
+  },
+  {
+    "name": "Guindy Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.212439,
+        13.00924
+      ]
+    }
+  },
+  {
+    "name": "Alandur Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.201631,
+        13.004713
+      ]
+    }
+  },
+  {
+    "name": "Egmore Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.261949,
+        13.078561
+      ]
+    }
+  },
+  {
+    "name": "Nehru Park Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.251764,
+        13.078529
+      ]
+    }
+  },
+  {
+    "name": "Kilpauk Medical College Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.24234,
+        13.07741
+      ]
+    }
+  },
+  {
+    "name": "CMBT Metro",
+    "type": "metro",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.21136,
+        13.068568
+      ]
+    }
+  },
+  {
+    "name": "Egmore Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.259652,
+        13.074968
+      ]
+    }
+  },
+  {
+    "name": "Guindy Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.220894,
+        13.009998
+      ]
+    }
+  },
+  {
+    "name": "Teynampet Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.244409,
+        13.040209
+      ]
+    }
+  },
+  {
+    "name": "Adyar Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.257281,
+        13.001802
+      ]
+    }
+  },
+  {
+    "name": "Mylapore Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.269034,
+        13.032865
+      ]
+    }
+  },
+  {
+    "name": "Triplicane Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.275726,
+        13.060085
+      ]
+    }
+  },
+  {
+    "name": "Royapettah Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.264859,
+        13.053483
+      ]
+    }
+  },
+  {
+    "name": "Nungambakkam Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.24215,
+        13.061594
+      ]
+    }
+  },
+  {
+    "name": "Anna Nagar Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.210335,
+        13.086451
+      ]
+    }
+  },
+  {
+    "name": "Koyambedu Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.202833,
+        13.06766
+      ]
+    }
+  },
+  {
+    "name": "Virugambakkam Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.201098,
+        13.047805
+      ]
+    }
+  },
+  {
+    "name": "Ashok Nagar Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.212683,
+        13.038132
+      ]
+    }
+  },
+  {
+    "name": "Perambur Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.24522,
+        13.114909
+      ]
+    }
+  },
+  {
+    "name": "Tondiarpet Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.286854,
+        13.128789
+      ]
+    }
+  },
+  {
+    "name": "Washermanpet Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.287188,
+        13.114061
+      ]
+    }
+  },
+  {
+    "name": "Madhavaram Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.231998,
+        13.148556
+      ]
+    }
+  },
+  {
+    "name": "Kolathur Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.218831,
+        13.123006
+      ]
+    }
+  },
+  {
+    "name": "Pulianthope Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.263817,
+        13.10016
+      ]
+    }
+  },
+  {
+    "name": "Chintadripet Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.269449,
+        13.07193
+      ]
+    }
+  },
+  {
+    "name": "Chetpet Police Station",
+    "type": "police",
+    "priorityWeight": 2,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.241084,
+        13.072661
+      ]
+    }
+  },
+  {
+    "name": "Ripon Building",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.273828,
+        13.082451
+      ]
+    }
+  },
+  {
+    "name": "Fort St George",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.287046,
+        13.082733
+      ]
+    }
+  },
+  {
+    "name": "Tamil Nadu Secretariat",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.286882,
+        13.081778
+      ]
+    }
+  },
+  {
+    "name": "Madras High Court",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.285266,
+        13.087239
+      ]
+    }
+  },
+  {
+    "name": "Greater Chennai Corporation Head Office",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.273693,
+        13.082591
+      ]
+    }
+  },
+  {
+    "name": "Singaravelar Maligai Collectorate",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.280817,
+        13.086181
+      ]
+    }
+  },
+  {
+    "name": "Chennai Collectorate Annex",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.28065,
+        13.08602
+      ]
+    }
+  },
+  {
+    "name": "Omandurar Government Estate",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.250709,
+        13.061356
+      ]
+    }
+  },
+  {
+    "name": "Chepauk PWD Complex",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.277183,
+        13.064693
+      ]
+    }
+  },
+  {
+    "name": "Directorate of Public Health Chennai",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.249628,
+        13.062858
+      ]
+    }
+  },
+  {
+    "name": "Tamil Nadu Police Headquarters",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.276965,
+        13.066857
+      ]
+    }
+  },
+  {
+    "name": "Chennai Metropolitan Development Authority",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.23071,
+        13.08278
+      ]
+    }
+  },
+  {
+    "name": "Regional Passport Office Chennai",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.246942,
+        13.067206
+      ]
+    }
+  },
+  {
+    "name": "Income Tax Office Nungambakkam",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.243798,
+        13.059116
+      ]
+    }
+  },
+  {
+    "name": "RTO Chennai South Guindy",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.212332,
+        13.011585
+      ]
+    }
+  },
+  {
+    "name": "RTO Chennai Central Ayanavaram",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.219744,
+        13.099119
+      ]
+    }
+  },
+  {
+    "name": "Taluk Office Mylapore",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.266736,
+        13.033305
+      ]
+    }
+  },
+  {
+    "name": "Taluk Office Egmore Nungambakkam",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.249916,
+        13.073883
+      ]
+    }
+  },
+  {
+    "name": "Chennai Metro Water Head Office",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.262805,
+        13.06279
+      ]
+    }
+  },
+  {
+    "name": "Tamil Nadu Housing Board Head Office",
+    "type": "government_building",
+    "priorityWeight": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.245783,
+        13.054014
+      ]
+    }
+  }
+]

@@ -1,0 +1,1367 @@
+﻿[
+    {
+        "title":  "Large pothole near Apollo Hospital Greams Road",
+        "description":  "Deep road cavity with standing water close to Apollo entrance, causing sudden braking.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.25142,
+                                             13.06394
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage pileup near Anna Adarsh Senior Secondary School gate",
+        "description":  "Uncleared garbage heap near school bus bay creating foul smell during school hours.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.23228,
+                                             13.08062
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Drainage overflow near Guindy Metro station east entrance",
+        "description":  "Storm drain water is overflowing near pedestrian path and creating slippery surface.",
+        "category":  "drainage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.21256,
+                                             13.00934
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/drainage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Streetlight outage near Ripon Building junction",
+        "description":  "Multiple streetlights are not working near Ripon Building service road after sunset.",
+        "category":  "streetlight",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.27398,
+                                             13.08233
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/street+light.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Water leak in Nolambur residential street",
+        "description":  "Continuous potable water leak from distribution line in a residential lane of Nolambur.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1679,
+                                             13.0829
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole on Greams Road lane near Apollo signal",
+        "description":  "Pothole expanding near signal line where two-wheelers queue during peak traffic.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2515,
+                                             13.0637
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole on Greams Road lane near Apollo signal follow-up",
+        "description":  "Same road damage spot as previous report, still dangerous for buses and autos.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.25186,
+                                             13.06392
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole near Apollo signal reported by different resident",
+        "description":  "Road cavity near hospital corridor affects ambulance lane movement.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.25198,
+                                             13.06364
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Major water leak near Kalpakkam approach road outskirts",
+        "description":  "Pipeline leak on the outskirts causing road erosion and low pressure in nearby houses.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.52,
+                                             12.82
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage accumulation near Ambattur market road",
+        "description":  "Uncollected mixed waste is spilling onto the carriageway near Ambattur market.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1561,
+                                             13.1139
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Drainage line blockage at Korattur main street",
+        "description":  "Sewage backflow visible from manhole cover and entering roadside storm channel.",
+        "category":  "drainage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1909,
+                                             13.1115
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/drainage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Streetlight failure near Ambattur bus terminus",
+        "description":  "Three consecutive streetlights are not operating near bus turning area.",
+        "category":  "streetlight",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1499,
+                                             13.1108
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/street+light.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole near Anna Nagar Roundtana service lane",
+        "description":  "Road depression has formed near divider opening and causes lane weaving.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2099,
+                                             13.0858
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Water leak beside Shenoy Nagar residential block",
+        "description":  "Underground water line leak observed with steady pooling near apartment entrance.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2181,
+                                             13.0785
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage bins overflowing near SBOA School corridor",
+        "description":  "Overflowing bins near school corridor attracting stray animals and blocking pavement.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.20802,
+                                             13.09552
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Drainage overflow near Teynampet signal",
+        "description":  "Drain chamber overflow during evening peak near signal island.",
+        "category":  "drainage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2448,
+                                             13.0422
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/drainage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Streetlight issue on Nandanam arterial road",
+        "description":  "Dark stretch due to failed streetlights affecting pedestrian movement.",
+        "category":  "streetlight",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2413,
+                                             13.0319
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/street+light.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage dump near Alwarpet canal edge",
+        "description":  "Persistent garbage dumping along canal edge causing blocked flow and odor.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2545,
+                                             13.0337
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole at Saidapet bridge approach",
+        "description":  "Large pothole at bridge approach causes sudden swerving by two-wheelers.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2199,
+                                             13.0195
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage heaps near Guindy Industrial Estate lane",
+        "description":  "Stacked garbage bags are left uncleared near workshop lane in industrial estate.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2232,
+                                             13.0123
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Water leak near Adyar bridge residential pocket",
+        "description":  "Water main leak near residential side street in Adyar affecting road surface.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.257,
+                                             13.0082
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Streetlight outage near Thiruvanmiyur beach road",
+        "description":  "Streetlights along beach road segment are off creating dark corridor at night.",
+        "category":  "streetlight",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2681,
+                                             13.003
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/street+light.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Drainage stagnation in Besant Nagar side street",
+        "description":  "Stagnant drainage water near side street with mosquito breeding risk.",
+        "category":  "drainage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2668,
+                                             13.0014
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/drainage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole near Sholinganallur junction flyover",
+        "description":  "Damaged asphalt near flyover descent impacting morning office traffic.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2273,
+                                             13.0227
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Water leak in Semmenchery housing board road",
+        "description":  "Fresh water leak across housing board road causing continuous runoff.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2179,
+                                             13.0346
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage not cleared near Karapakkam market lane",
+        "description":  "Organic waste remains uncleared near market lane and spills onto road edge.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2297,
+                                             13.0443
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Drainage choke near Red Hills junction",
+        "description":  "Blocked drainage chamber causing roadside water accumulation near junction.",
+        "category":  "drainage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1862,
+                                             13.1859
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/drainage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Streetlight fault on Red Hills inner road",
+        "description":  "Streetlight poles are non-functional for nearly 300 meters on inner road.",
+        "category":  "streetlight",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1807,
+                                             13.1881
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/street+light.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage dumping near Puzhal Camp access road",
+        "description":  "Repeated garbage dumping near access road shoulder affecting local commuters.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.1921,
+                                             13.165
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Water leak at Royapuram fish market corridor",
+        "description":  "Burst pipe near market corridor leaves water flowing into traffic lane.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.295,
+                                             13.1134
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Pothole near Washermanpet junction",
+        "description":  "Deep pothole at junction turning radius increasing accident risk for two-wheelers.",
+        "category":  "pothole",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2875,
+                                             13.1145
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/pato+hole+road.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Drainage overflow near Fort St George approach",
+        "description":  "Drainage overflow observed near approach road leading to Fort St George complex.",
+        "category":  "drainage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2867,
+                                             13.0826
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/drainage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Streetlight outage near CMBT Metro pedestrian ramp",
+        "description":  "Pedestrian ramp lighting near metro is non-functional after 8 PM.",
+        "category":  "streetlight",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.21142,
+                                             13.06864
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2436",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/street+light.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Garbage accumulation near Government General Hospital gate",
+        "description":  "Medical and domestic mixed waste bags are left near side gate pathway.",
+        "category":  "garbage",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2815,
+                                             13.0811
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2437",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/garbage.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    },
+    {
+        "title":  "Water leak near Perungudi residential block",
+        "description":  "Leak from underground line near apartment block creating slippery patch.",
+        "category":  "water_leak",
+        "location":  {
+                         "type":  "Point",
+                         "coordinates":  [
+                                             80.2458,
+                                             13.0215
+                                         ]
+                     },
+        "status":  "reported",
+        "severityScore":  0,
+        "priority":  {
+                         "score":  0,
+                         "level":  "low",
+                         "reason":  "",
+                         "aiProcessed":  false,
+                         "aiProcessingStatus":  "pending"
+                     },
+        "duplicateInfo":  {
+                              "isDuplicate":  false,
+                              "masterComplaintId":  null,
+                              "duplicateCount":  0
+                          },
+        "assignedMunicipalOffice":  null,
+        "assignedOfficeType":  null,
+        "routingDistanceMeters":  null,
+        "routingReason":  null,
+        "reportedBy":  "69958528e0c5220d972f2438",
+        "images":  [
+                       {
+                           "url":  "https://civisence.s3.ap-south-1.amazonaws.com/water_leak.png",
+                           "uploadedAt":  null
+                       }
+                   ],
+        "createdAt":  null,
+        "updatedAt":  null
+    }
+]

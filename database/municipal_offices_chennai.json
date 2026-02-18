@@ -1,0 +1,677 @@
+[
+  {
+    "name": "Ambattur Zonal Office",
+    "type": "main",
+    "zone": "Ambattur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1548,
+        13.1143
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Anna Nagar Zonal Office",
+    "type": "main",
+    "zone": "Anna Nagar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2102,
+        13.085
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Teynampet Zonal Office",
+    "type": "main",
+    "zone": "Teynampet",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2435,
+        13.0418
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Royapuram Zonal Office",
+    "type": "main",
+    "zone": "Royapuram",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2952,
+        13.1137
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Perungudi Zonal Office",
+    "type": "main",
+    "zone": "Perungudi",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2458,
+        13.0215
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Alandur Zonal Office",
+    "type": "main",
+    "zone": "Alandur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2015,
+        13.0031
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Madhavaram Zonal Office",
+    "type": "main",
+    "zone": "Madhavaram",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2325,
+        13.1488
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Sholinganallur Zonal Office",
+    "type": "main",
+    "zone": "Sholinganallur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2276,
+        13.0225
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Valasaravakkam Zonal Office",
+    "type": "main",
+    "zone": "Valasaravakkam",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.174,
+        13.0453
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Kodambakkam Zonal Office",
+    "type": "main",
+    "zone": "Kodambakkam",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2279,
+        13.0522
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Adyar Zonal Office",
+    "type": "main",
+    "zone": "Adyar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2551,
+        13.0067
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Guindy Zonal Office",
+    "type": "main",
+    "zone": "Guindy",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2205,
+        13.0105
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Red Hills Zonal Office",
+    "type": "main",
+    "zone": "Red Hills",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1846,
+        13.1865
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Manali Zonal Office",
+    "type": "main",
+    "zone": "Manali",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2588,
+        13.1659
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Thiru Vi Ka Nagar Zonal Office",
+    "type": "main",
+    "zone": "Thiru Vi Ka Nagar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2368,
+        13.1189
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 200,
+    "isActive": true
+  },
+  {
+    "name": "Mogappair Sub Office",
+    "type": "sub",
+    "zone": "Ambattur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1765,
+        13.0857
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Korattur Sub Office",
+    "type": "sub",
+    "zone": "Ambattur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1906,
+        13.1112
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Aminjikarai Sub Office",
+    "type": "sub",
+    "zone": "Anna Nagar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2109,
+        13.0749
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Shenoy Nagar Sub Office",
+    "type": "sub",
+    "zone": "Anna Nagar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2183,
+        13.0789
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Alwarpet Sub Office",
+    "type": "sub",
+    "zone": "Teynampet",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2542,
+        13.0339
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Nandanam Sub Office",
+    "type": "sub",
+    "zone": "Teynampet",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2416,
+        13.0316
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Washermanpet Sub Office",
+    "type": "sub",
+    "zone": "Royapuram",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2877,
+        13.1146
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Tondiarpet Sub Office",
+    "type": "sub",
+    "zone": "Royapuram",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2863,
+        13.1281
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Thoraipakkam Sub Office",
+    "type": "sub",
+    "zone": "Perungudi",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2391,
+        13.0354
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Kandanchavadi Sub Office",
+    "type": "sub",
+    "zone": "Perungudi",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2428,
+        13.0467
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Nanganallur Sub Office",
+    "type": "sub",
+    "zone": "Alandur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1912,
+        13.0326
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "St Thomas Mount Sub Office",
+    "type": "sub",
+    "zone": "Alandur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1975,
+        13.0058
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Perambur Sub Office",
+    "type": "sub",
+    "zone": "Madhavaram",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2454,
+        13.1133
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Puzhal Sub Office",
+    "type": "sub",
+    "zone": "Madhavaram",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1957,
+        13.1577
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Karapakkam Sub Office",
+    "type": "sub",
+    "zone": "Sholinganallur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2297,
+        13.0443
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Semmenchery Sub Office",
+    "type": "sub",
+    "zone": "Sholinganallur",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2179,
+        13.0346
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Porur Sub Office",
+    "type": "sub",
+    "zone": "Valasaravakkam",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1583,
+        13.0382
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Ramapuram Sub Office",
+    "type": "sub",
+    "zone": "Valasaravakkam",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1894,
+        13.0311
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Vadapalani Sub Office",
+    "type": "sub",
+    "zone": "Kodambakkam",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2126,
+        13.0501
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Saligramam Sub Office",
+    "type": "sub",
+    "zone": "Kodambakkam",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2043,
+        13.0557
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Thiruvanmiyur Sub Office",
+    "type": "sub",
+    "zone": "Adyar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2619,
+        13.0105
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Besant Nagar Sub Office",
+    "type": "sub",
+    "zone": "Adyar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2673,
+        13.0009
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Saidapet Sub Office",
+    "type": "sub",
+    "zone": "Guindy",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2208,
+        13.0237
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Velachery Sub Office",
+    "type": "sub",
+    "zone": "Guindy",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.221,
+        13.0399
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Puzhal Camp Sub Office",
+    "type": "sub",
+    "zone": "Red Hills",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.1921,
+        13.165
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Moolakadai Sub Office",
+    "type": "sub",
+    "zone": "Red Hills",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2307,
+        13.1368
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Tiruvottiyur Sub Office",
+    "type": "sub",
+    "zone": "Manali",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2994,
+        13.1588
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Sathangadu Sub Office",
+    "type": "sub",
+    "zone": "Manali",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2739,
+        13.1704
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Periyar Nagar Sub Office",
+    "type": "sub",
+    "zone": "Thiru Vi Ka Nagar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2398,
+        13.1211
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  },
+  {
+    "name": "Kolathur Sub Office",
+    "type": "sub",
+    "zone": "Thiru Vi Ka Nagar",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        80.2157,
+        13.1235
+      ]
+    },
+    "workload": 0,
+    "maxCapacity": 120,
+    "isActive": true
+  }
+]
