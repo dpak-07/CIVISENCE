@@ -8,11 +8,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { getApiErrorMessage } from "@/lib/api";
+import { loginUser } from "@/lib/services/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -22,19 +25,23 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Please fill in all fields");
+      Alert.alert("Missing fields", "Please fill in all fields.");
       return;
     }
+
     setLoading(true);
+
     try {
-      // Mock API call
-      setTimeout(() => {
-        setLoading(false);
-        router.replace("/(tabs)");
-      }, 1500);
+      await loginUser({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      router.replace("/");
     } catch (error) {
+      Alert.alert("Login failed", getApiErrorMessage(error));
+    } finally {
       setLoading(false);
-      alert("Login failed");
     }
   };
 
@@ -71,6 +78,8 @@ export default function Login() {
                 placeholder="you@example.com"
                 placeholderTextColor="#9ca3af"
                 keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
                 value={email}
                 onChangeText={setEmail}
               />
@@ -126,7 +135,7 @@ export default function Login() {
 
           {/* Register Link */}
           <View style={styles.registerLink}>
-            <Text style={styles.registerText}>Don't have an account? </Text>
+            <Text style={styles.registerText}>Don&apos;t have an account? </Text>
             <Pressable onPress={() => router.push("/auth/register")}>
               <Text style={styles.registerLink2}>Sign Up</Text>
             </Pressable>

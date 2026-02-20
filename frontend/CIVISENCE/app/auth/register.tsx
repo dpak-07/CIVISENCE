@@ -8,55 +8,92 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { getApiErrorMessage } from "@/lib/api";
+import { registerUser } from "@/lib/services/auth";
 
-export default function Login() {
+export default function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Please fill in all fields");
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert("Missing fields", "Please fill in all fields.");
       return;
     }
+
+    if (password.length < 8) {
+      Alert.alert("Weak password", "Password must be at least 8 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Password mismatch", "Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
+
     try {
-      // Mock API call
-      setTimeout(() => {
-        setLoading(false);
-        router.replace("/(tabs)");
-      }, 1500);
+      await registerUser({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      router.replace("/");
     } catch (error) {
+      Alert.alert("Registration failed", getApiErrorMessage(error));
+    } finally {
       setLoading(false);
-      alert("Login failed");
     }
   };
 
   return (
-    <LinearGradient
-      colors={["#f1f6fc", "#e0eaff"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#f1f6fc", "#e0eaff"]} style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.wrapper}
       >
         <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
-          <Ionicons name="arrow-back" size={28} color="#1e3a8a" onPress={() => router.back()} />
-          <Text style={styles.title}>Welcome Back</Text>
+          <Ionicons
+            name="arrow-back"
+            size={28}
+            color="#1e3a8a"
+            onPress={() => router.back()}
+          />
+          <Text style={styles.title}>Create Account</Text>
         </Animated.View>
 
-        <Animated.View
-          entering={FadeInUp.delay(100).duration(700)}
-          style={styles.form}
-        >
-          {/* Email Input */}
+        <Animated.View entering={FadeInUp.delay(100).duration(700)} style={styles.form}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Full Name</Text>
+            <View style={styles.inputWrapper}>
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color="#2563eb"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Your name"
+                placeholderTextColor="#9ca3af"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
+          </View>
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
             <View style={styles.inputWrapper}>
@@ -71,13 +108,14 @@ export default function Login() {
                 placeholder="you@example.com"
                 placeholderTextColor="#9ca3af"
                 keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
                 value={email}
                 onChangeText={setEmail}
               />
             </View>
           </View>
 
-          {/* Password Input */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
             <View style={styles.inputWrapper}>
@@ -89,7 +127,7 @@ export default function Login() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Enter your password"
+                placeholder="Minimum 8 characters"
                 placeholderTextColor="#9ca3af"
                 secureTextEntry={!showPassword}
                 value={password}
@@ -105,30 +143,40 @@ export default function Login() {
             </View>
           </View>
 
-          {/* Forgot Password */}
-          <Pressable>
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </Pressable>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <View style={styles.inputWrapper}>
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={20}
+                color="#2563eb"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Re-enter password"
+                placeholderTextColor="#9ca3af"
+                secureTextEntry={!showPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+            </View>
+          </View>
 
-          {/* Login Button */}
-          <LinearGradient
-            colors={["#2563EB", "#1d4ed8"]}
-            style={styles.button}
-          >
-            <Pressable onPress={handleLogin} disabled={loading}>
+          <LinearGradient colors={["#2563EB", "#1d4ed8"]} style={styles.button}>
+            <Pressable onPress={handleRegister} disabled={loading}>
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign In</Text>
+                <Text style={styles.buttonText}>Create Account</Text>
               )}
             </Pressable>
           </LinearGradient>
 
-          {/* Register Link */}
           <View style={styles.registerLink}>
-            <Text style={styles.registerText}>Don't have an account? </Text>
-            <Pressable onPress={() => router.push("/auth/register")}>
-              <Text style={styles.registerLink2}>Sign Up</Text>
+            <Text style={styles.registerText}>Already have an account? </Text>
+            <Pressable onPress={() => router.push("/auth/login")}>
+              <Text style={styles.registerLink2}>Sign In</Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -183,12 +231,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: "#1f2937",
-  },
-  forgotPassword: {
-    color: "#2563EB",
-    fontWeight: "600",
-    textAlign: "right",
-    marginTop: 4,
   },
   button: {
     height: 50,

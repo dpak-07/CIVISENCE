@@ -32,9 +32,24 @@ const updateComplaintStatus = asyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json({ success: true, data: complaint });
 });
 
+const deleteComplaint = asyncHandler(async (req, res) => {
+  const result = await complaintService.deleteComplaint({
+    complaintId: req.params.id,
+    requesterId: req.user.id,
+    requesterRole: req.user.role
+  });
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Complaint deleted',
+    data: result
+  });
+});
+
 module.exports = {
   createComplaint,
   getComplaints,
   getComplaintById,
-  updateComplaintStatus
+  updateComplaintStatus,
+  deleteComplaint
 };

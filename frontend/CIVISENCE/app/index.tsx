@@ -5,16 +5,19 @@ import {
   StyleSheet,
   Pressable,
   Image,
-  Dimensions,
   Animated as RNAnimated,
-  Switch,
+  Platform,
 } from "react-native";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import Animated, { FadeInDown, FadeInUp, ZoomIn } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { getMyComplaints } from "@/lib/services/complaints";
+import { getNotifications } from "@/lib/services/notifications";
+import { sessionStore } from "@/lib/session";
 
-const { width } = Dimensions.get("window");
+const USE_NATIVE_DRIVER = Platform.OS !== "web";
 
 function LogoAnimation({ isDark }: { isDark: boolean }) {
   const rotate = useRef(new RNAnimated.Value(0)).current;
@@ -24,7 +27,7 @@ function LogoAnimation({ isDark }: { isDark: boolean }) {
       RNAnimated.timing(rotate, {
         toValue: 1,
         duration: 8000,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       })
     ).start();
   }, []);
@@ -59,12 +62,12 @@ function FloatingCircle({ delay = 0, duration = 4000, style }: any) {
             toValue: -30,
             duration: duration,
             delay,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           RNAnimated.timing(translateY, {
             toValue: 0,
             duration: duration,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ]),
         RNAnimated.sequence([
@@ -72,17 +75,17 @@ function FloatingCircle({ delay = 0, duration = 4000, style }: any) {
             toValue: 20,
             duration: duration / 2,
             delay,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           RNAnimated.timing(translateX, {
             toValue: -20,
             duration: duration,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           RNAnimated.timing(translateX, {
             toValue: 0,
             duration: duration / 2,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ]),
         RNAnimated.sequence([
@@ -90,12 +93,12 @@ function FloatingCircle({ delay = 0, duration = 4000, style }: any) {
             toValue: 1.1,
             duration: duration / 2,
             delay,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           RNAnimated.timing(scale, {
             toValue: 1,
             duration: duration / 2,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ]),
       ])
@@ -123,12 +126,12 @@ function BackgroundDots({ isDark }: { isDark: boolean }) {
         RNAnimated.timing(opacity, {
           toValue: 0.6,
           duration: 3000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         RNAnimated.timing(opacity, {
           toValue: 0.3,
           duration: 3000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     ).start();
@@ -154,6 +157,38 @@ function BackgroundDots({ isDark }: { isDark: boolean }) {
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [myReportsCount, setMyReportsCount] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const user = sessionStore.getUser();
+
+  useEffect(() => {
+    if (!sessionStore.getAccessToken()) {
+      router.replace("/auth/login");
+    }
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const load = async () => {
+        if (!sessionStore.getAccessToken()) {
+          return;
+        }
+
+        try {
+          const [complaints, notifications] = await Promise.all([
+            getMyComplaints(),
+            getNotifications(),
+          ]);
+          setMyReportsCount(complaints.length);
+          setUnreadNotifications(notifications.filter((item) => !item.read).length);
+        } catch {
+          // Ignore home stats errors, user can still navigate.
+        }
+      };
+
+      void load();
+    }, [])
+  );
 
   const menuItems = [
     {
@@ -167,7 +202,7 @@ export default function Home() {
     {
       id: 2,
       title: "Track Status",
-      subtitle: "View complaints",
+      subtitle: `${myReportsCount} report(s)`,
       icon: "time",
       color: "#A78BFA",
       route: "/track",
@@ -183,7 +218,7 @@ export default function Home() {
     {
       id: 4,
       title: "My Reports",
-      subtitle: "View your reports",
+      subtitle: `${unreadNotifications} unread alerts`,
       icon: "document-text",
       color: "#F472B6",
       route: "/profile",
@@ -218,7 +253,9 @@ export default function Home() {
       <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
         <View>
           <Text style={[styles.greeting, { color: theme.subText }]}>Welcome back</Text>
-          <Text style={[styles.userName, { color: theme.text }]}>John Doe</Text>
+          <Text style={[styles.userName, { color: theme.text }]}>
+            {user?.name || "Citizen"}
+          </Text>
         </View>
         <View style={styles.headerRight}>
           {/* Dark Mode Toggle */}
@@ -292,7 +329,7 @@ export default function Home() {
                 isDarkMode && styles.menuCardDark,
                 pressed && styles.cardPressed,
               ]}
-              onPress={() => router.push(item.route)}
+              onPress={() => router.push(item.route as never)}
             >
               <View style={[styles.iconBox, { backgroundColor: item.color }]}>
                 <Ionicons name={item.icon as any} size={28} color="#fff" />
@@ -619,3 +656,4 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+

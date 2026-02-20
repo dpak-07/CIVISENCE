@@ -1,516 +1,451 @@
-import React, { useState, useRef } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
+  ActivityIndicator,
+  Alert,
   FlatList,
+  Image,
   Modal,
-  Dimensions,
-  Animated as RNAnimated,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  PanResponder,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import Animated, { FadeInUp } from "react-native-reanimated";
+import { getApiErrorMessage } from "@/lib/api";
+import { sessionStore } from "@/lib/session";
+import { ComplaintRecord, deleteComplaint, getMyComplaints } from "@/lib/services/complaints";
 
-const { width } = Dimensions.get('window');
+type IoniconName = keyof typeof Ionicons.glyphMap;
 
-const MOCK_COMPLAINTS = [
-  {
-    id: "1",
-    title: "Pothole on Main Street",
-    status: "In Progress",
-    priority: "High",
-    date: "2024-02-01",
-    icon: "alert-circle",
-    progress: 65,
-    location: "Downtown",
-    image: "https://via.placeholder.com/400x300?text=Pothole",
-    description: "Large pothole in the middle of Main Street causing traffic hazard.",
-    category: "Pothole",
-    updates: [
-      { date: "2024-02-01", message: "Report submitted", status: "submitted" },
-      { date: "2024-02-02", message: "Assigned to maintenance team", status: "assigned" },
-      { date: "2024-02-03", message: "Work in progress", status: "in_progress" },
-    ],
-  },
-  {
-    id: "2",
-    title: "Broken Streetlight",
-    status: "Assigned",
-    priority: "Medium",
-    date: "2024-01-30",
-    icon: "sunny",
-    progress: 35,
-    location: "West Side",
-    image: "https://via.placeholder.com/400x300?text=Streetlight",
-    description: "Streetlight not functioning at the intersection of Park Road.",
-    category: "Streetlight",
-    updates: [
-      { date: "2024-01-30", message: "Report submitted", status: "submitted" },
-      { date: "2024-02-01", message: "Assigned to electrical team", status: "assigned" },
-    ],
-  },
-  {
-    id: "3",
-    title: "Garbage Accumulation",
-    status: "Resolved",
-    priority: "Low",
-    date: "2024-01-28",
-    icon: "trash",
-    progress: 100,
-    location: "East Park",
-    image: "https://via.placeholder.com/400x300?text=Garbage",
-    description: "Overflowing garbage bins in the park area.",
-    category: "Garbage",
-    updates: [
-      { date: "2024-01-28", message: "Report submitted", status: "submitted" },
-      { date: "2024-01-29", message: "Assigned to sanitation team", status: "assigned" },
-      { date: "2024-02-01", message: "Area cleaned and resolved", status: "resolved" },
-    ],
-  },
-];
+type TimelineItem = {
+  date: string;
+  message: string;
+};
 
-function ComplaintCard({ complaint, onPress }: any) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Resolved":
-        return ["#10b981", "#059669"];
-      case "In Progress":
-        return ["#f59e0b", "#d97706"];
-      case "Assigned":
-        return ["#3b82f6", "#2563eb"];
-      default:
-        return ["#6b7280", "#4b5563"];
+type ComplaintCardModel = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  statusLabel: string;
+  statusRaw: string;
+  priorityLabel: string;
+  priorityReason: string;
+  dateLabel: string;
+  locationLabel: string;
+  progress: number;
+  icon: IoniconName;
+  imageUrl: string | null;
+  timeline: TimelineItem[];
+};
+
+const CATEGORY_ICON_MAP: Record<string, IoniconName> = {
+  pothole: "alert-circle",
+  streetlight: "sunny",
+  garbage: "trash",
+  drainage: "water",
+  leak: "water",
+  water_leak: "water",
+  traffic_sign: "alert",
+};
+
+const toStatusLabel = (status: string): string => {
+  switch (status) {
+    case "resolved":
+      return "Resolved";
+    case "in_progress":
+      return "In Progress";
+    case "assigned":
+      return "Assigned";
+    case "reported":
+      return "Reported";
+    case "unassigned":
+      return "Unassigned";
+    case "rejected":
+      return "Rejected";
+    default:
+      return "Reported";
+  }
+};
+
+const toPriorityLabel = (priorityLevel?: string): string => {
+  switch (priorityLevel) {
+    case "high":
+      return "High";
+    case "medium":
+      return "Medium";
+    case "low":
+      return "Low";
+    default:
+      return "Low";
+  }
+};
+
+const toProgress = (status: string): number => {
+  switch (status) {
+    case "resolved":
+    case "rejected":
+      return 100;
+    case "in_progress":
+      return 70;
+    case "assigned":
+      return 40;
+    case "reported":
+    case "unassigned":
+      return 15;
+    default:
+      return 10;
+  }
+};
+
+const toCategoryIcon = (category: string): IoniconName => {
+  const normalized = category.trim().toLowerCase().replace(/\s+/g, "_");
+  return CATEGORY_ICON_MAP[normalized] ?? "construct";
+};
+
+const formatDate = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const toLocationLabel = (complaint: ComplaintRecord): string => {
+  if (!complaint.location?.coordinates || complaint.location.coordinates.length !== 2) {
+    return "No coordinates";
+  }
+
+  const [longitude, latitude] = complaint.location.coordinates;
+  return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+};
+
+const toTimeline = (complaint: ComplaintRecord): TimelineItem[] => {
+  const timeline: TimelineItem[] = [
+    {
+      date: formatDate(complaint.createdAt),
+      message: "Report submitted",
+    },
+  ];
+
+  if (complaint.status === "assigned") {
+    timeline.push({
+      date: formatDate(complaint.updatedAt),
+      message: "Assigned to municipal office",
+    });
+  }
+
+  if (complaint.status === "in_progress") {
+    timeline.push({
+      date: formatDate(complaint.updatedAt),
+      message: "Work in progress",
+    });
+  }
+
+  if (complaint.status === "resolved") {
+    timeline.push({
+      date: formatDate(complaint.updatedAt),
+      message: "Issue resolved",
+    });
+  }
+
+  if (complaint.status === "rejected") {
+    timeline.push({
+      date: formatDate(complaint.updatedAt),
+      message: "Issue rejected",
+    });
+  }
+
+  return timeline;
+};
+
+const toViewModel = (complaint: ComplaintRecord): ComplaintCardModel => ({
+  id: complaint._id,
+  title: complaint.title,
+  description: complaint.description,
+  category: complaint.category,
+  statusLabel: toStatusLabel(complaint.status),
+  statusRaw: complaint.status,
+  priorityLabel: toPriorityLabel(complaint.priority?.level),
+  priorityReason: complaint.priority?.reason || "No priority explanation yet",
+  dateLabel: formatDate(complaint.createdAt),
+  locationLabel: toLocationLabel(complaint),
+  progress: toProgress(complaint.status),
+  icon: toCategoryIcon(complaint.category),
+  imageUrl: complaint.images?.[0]?.url || null,
+  timeline: toTimeline(complaint),
+});
+
+const getStatusGradient = (status: string): [string, string] => {
+  switch (status) {
+    case "resolved":
+      return ["#10b981", "#059669"];
+    case "in_progress":
+      return ["#f59e0b", "#d97706"];
+    case "assigned":
+      return ["#3b82f6", "#2563eb"];
+    case "rejected":
+      return ["#ef4444", "#dc2626"];
+    default:
+      return ["#6b7280", "#4b5563"];
+  }
+};
+
+const getPriorityColor = (priority: string): string => {
+  switch (priority) {
+    case "High":
+      return "#ef4444";
+    case "Medium":
+      return "#f59e0b";
+    case "Low":
+      return "#10b981";
+    default:
+      return "#6b7280";
+  }
+};
+
+export default function TrackComplaints() {
+  const [complaints, setComplaints] = useState<ComplaintCardModel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [authMissing, setAuthMissing] = useState(false);
+  const [selectedComplaint, setSelectedComplaint] = useState<ComplaintCardModel | null>(null);
+
+  const loadComplaints = useCallback(async (isRefresh = false) => {
+    const user = sessionStore.getUser();
+    if (!sessionStore.getAccessToken() || !user?.id) {
+      setAuthMissing(true);
+      setComplaints([]);
+      setLoading(false);
+      setRefreshing(false);
+      return;
     }
-  };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return "#ef4444";
-      case "Medium":
-        return "#f59e0b";
-      case "Low":
-        return "#10b981";
-      default:
-        return "#6b7280";
+    setAuthMissing(false);
+
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
     }
-  };
 
-  const statusColors = getStatusColor(complaint.status);
+    try {
+      const records = await getMyComplaints();
+      setComplaints(records.map(toViewModel));
+    } catch (error) {
+      const message = getApiErrorMessage(error);
+      if (message.toLowerCase().includes("authorization") || message.toLowerCase().includes("token")) {
+        setAuthMissing(true);
+      } else {
+        Alert.alert("Could not load complaints", message);
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  const handleDeleteComplaintFromList = useCallback(
+    async (complaintId: string) => {
+      try {
+        await deleteComplaint(complaintId);
+        setComplaints((prev) => prev.filter((item) => item.id !== complaintId));
+        setSelectedComplaint((prev) => (prev?.id === complaintId ? null : prev));
+      } catch (error) {
+        Alert.alert("Delete failed", getApiErrorMessage(error));
+      }
+    },
+    []
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadComplaints();
+    }, [loadComplaints])
+  );
+
+  const activeCount = useMemo(() => complaints.length, [complaints]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Loading complaints...</Text>
+      </View>
+    );
+  }
+
+  if (authMissing) {
+    return (
+      <LinearGradient colors={["#f8fafc", "#eef2ff"]} style={styles.container}>
+        <View style={styles.authCard}>
+          <Ionicons name="lock-closed" size={48} color="#2563eb" />
+          <Text style={styles.authTitle}>Sign in required</Text>
+          <Text style={styles.authText}>Please log in to view and track your complaints.</Text>
+          <Pressable style={styles.authButton} onPress={() => router.push("/auth/login")}>
+            <Text style={styles.authButtonText}>Go to Login</Text>
+          </Pressable>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   return (
-    <Pressable onPress={onPress}>
-      <Animated.View entering={FadeInUp.delay(100)} style={styles.card}>
-        <LinearGradient
-          colors={['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.85)']}
-          style={styles.cardGradient}
-        >
-          {/* Priority Indicator Strip */}
-          <View style={[styles.priorityStrip, { backgroundColor: getPriorityColor(complaint.priority) }]} />
-          
-          <View style={styles.cardHeader}>
-            <LinearGradient
-              colors={statusColors as any}
-              style={styles.cardIconGradient}
-            >
-              <Ionicons name={complaint.icon as any} size={24} color="#fff" />
-            </LinearGradient>
-            
-            <View style={styles.cardHeaderContent}>
-              <Text style={styles.cardTitle} numberOfLines={2}>{complaint.title}</Text>
-              <View style={styles.locationRow}>
-                <Ionicons name="location-outline" size={14} color="#64748b" />
-                <Text style={styles.cardLocation}>{complaint.location}</Text>
-                <Text style={styles.cardDivider}>•</Text>
-                <Text style={styles.cardDate}>{complaint.date}</Text>
-              </View>
-            </View>
-          </View>
+    <LinearGradient colors={["#f8fafc", "#eef2ff"]} style={styles.container}>
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#1e293b" />
+        </Pressable>
+        <View style={styles.headerText}>
+          <Text style={styles.headerTitle}>My Reports</Text>
+          <Text style={styles.headerSubtitle}>{activeCount} complaint(s)</Text>
+        </View>
+        <Pressable onPress={() => void loadComplaints(true)} style={styles.refreshButton}>
+          <Ionicons name="refresh" size={22} color="#1e293b" />
+        </Pressable>
+      </View>
 
-          {/* Progress Section */}
-          <View style={styles.progressSection}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Progress</Text>
-              <Text style={styles.progressPercentage}>{complaint.progress}%</Text>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <LinearGradient
-                colors={statusColors as any}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={[styles.progressBar, { width: `${complaint.progress}%` }]}
-              />
-            </View>
-          </View>
-
-          {/* Status and Priority Row */}
-          <View style={styles.cardFooter}>
-            <LinearGradient
-              colors={statusColors as any}
-              style={styles.statusBadge}
-            >
-              <Ionicons name="checkmark-circle" size={14} color="#fff" />
-              <Text style={styles.statusText}>{complaint.status}</Text>
-            </LinearGradient>
-            
-            <View style={[styles.priorityBadge, { borderColor: getPriorityColor(complaint.priority) }]}>
-              <View style={[styles.priorityDot, { backgroundColor: getPriorityColor(complaint.priority) }]} />
-              <Text style={[styles.priorityText, { color: getPriorityColor(complaint.priority) }]}>
-                {complaint.priority}
-              </Text>
-            </View>
-          </View>
-
-          {/* Chevron */}
-          <View style={styles.chevronContainer}>
-            <Ionicons name="chevron-forward" size={22} color="#cbd5e1" />
-          </View>
-        </LinearGradient>
-      </Animated.View>
-    </Pressable>
-  );
-}
-
-function ReportDetailModal({ complaint, visible, onClose }: any) {
-  const scrollY = useRef(new RNAnimated.Value(0)).current;
-  const scrollViewRef = useRef(null);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, { dx, dy }) => {
-        return Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy);
-      },
-      onPanResponderRelease: (_, { vx, dx }) => {
-        if (dx > 50 || vx > 0.7) {
-          onClose();
-        }
-      },
-    })
-  ).current;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Resolved":
-        return ["#10b981", "#059669"];
-      case "In Progress":
-        return ["#f59e0b", "#d97706"];
-      case "Assigned":
-        return ["#3b82f6", "#2563eb"];
-      default:
-        return ["#6b7280", "#4b5563"];
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return "#ef4444";
-      case "Medium":
-        return "#f59e0b";
-      case "Low":
-        return "#10b981";
-      default:
-        return "#6b7280";
-    }
-  };
-
-  const handleScroll = RNAnimated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: false }
-  );
-
-  const imageHeight = scrollY.interpolate({
-    inputRange: [0, 300],
-    outputRange: [300, 0],
-    extrapolate: "clamp",
-  });
-
-  const imageOpacity = scrollY.interpolate({
-    inputRange: [0, 200],
-    outputRange: [1, 0],
-    extrapolate: "clamp",
-  });
-
-  const imageScale = scrollY.interpolate({
-    inputRange: [-100, 0, 100],
-    outputRange: [1.3, 1, 0.9],
-    extrapolate: "clamp",
-  });
-
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [150, 200],
-    outputRange: [0, 1],
-    extrapolate: "clamp",
-  });
-
-  if (!complaint) return null;
-
-  const statusColors = getStatusColor(complaint.status);
-
-  return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={false}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        {/* Animated Header */}
-        <RNAnimated.View
-          style={[
-            styles.animatedHeader,
-            { opacity: headerOpacity },
-          ]}
-        >
-          <LinearGradient
-            colors={['rgba(255,255,255,0.98)', 'rgba(255,255,255,0.95)']}
-            style={styles.headerGradient}
-          >
-            <Pressable onPress={onClose} style={styles.headerBackButton}>
-              <Ionicons name="arrow-back" size={24} color="#1e293b" />
+      <FlatList
+        data={complaints}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadComplaints(true)} />}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Ionicons name="document-text-outline" size={52} color="#94a3b8" />
+            <Text style={styles.emptyTitle}>No reports yet</Text>
+            <Text style={styles.emptyText}>Submit a complaint to start tracking it here.</Text>
+            <Pressable style={styles.emptyButton} onPress={() => router.push("/report") }>
+              <Text style={styles.emptyButtonText}>Report an Issue</Text>
             </Pressable>
-            <Text style={styles.headerTitle} numberOfLines={1}>
-              {complaint.title}
-            </Text>
-            <View style={{ width: 40 }} />
-          </LinearGradient>
-        </RNAnimated.View>
+          </View>
+        }
+        renderItem={({ item, index }) => {
+          const statusGradient = getStatusGradient(item.statusRaw);
+          const priorityColor = getPriorityColor(item.priorityLabel);
 
-        {/* Scrollable Content */}
-        <RNAnimated.ScrollView
-          ref={scrollViewRef}
-          scrollEventThrottle={16}
-          onScroll={handleScroll}
-          showsVerticalScrollIndicator={false}
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          {...panResponder.panHandlers}
-        >
-          {/* Hero Image with Overlay */}
-          <RNAnimated.View
-            style={[
-              styles.heroImageWrapper,
-              {
-                height: imageHeight,
-                opacity: imageOpacity,
-              },
-            ]}
-          >
-            <RNAnimated.Image
-              source={{ uri: complaint.image }}
-              style={[
-                styles.heroImage,
-                {
-                  transform: [{ scale: imageScale }],
-                },
-              ]}
-              resizeMode="cover"
-            />
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.4)']}
-              style={styles.imageOverlay}
-            />
-            
-            {/* Floating Back Button */}
-            <View style={styles.floatingBackBtnContainer}>
-              <Pressable onPress={onClose} style={styles.floatingBackBtn}>
-                <Ionicons name="arrow-back" size={24} color="#fff" />
+          return (
+            <Pressable onPress={() => setSelectedComplaint(item)}>
+              <Animated.View entering={FadeInUp.delay(index * 60)} style={styles.card}>
+                <View style={[styles.priorityStrip, { backgroundColor: priorityColor }]} />
+                <View style={styles.cardHeader}>
+                  <LinearGradient colors={statusGradient} style={styles.iconWrap}>
+                    <Ionicons name={item.icon} size={20} color="#fff" />
+                  </LinearGradient>
+                  <View style={styles.cardHeaderContent}>
+                    <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
+                    <Text style={styles.cardMeta}>{item.locationLabel} | {item.dateLabel}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.progressBlock}>
+                  <View style={styles.progressTopRow}>
+                    <Text style={styles.progressLabel}>Progress</Text>
+                    <Text style={styles.progressPct}>{item.progress}%</Text>
+                  </View>
+                  <View style={styles.progressTrack}>
+                    <LinearGradient colors={statusGradient} style={[styles.progressFill, { width: `${item.progress}%` }]} />
+                  </View>
+                </View>
+
+                <View style={styles.badgeRow}>
+                  <LinearGradient colors={statusGradient} style={styles.statusBadge}>
+                    <Text style={styles.statusBadgeText}>{item.statusLabel}</Text>
+                  </LinearGradient>
+                  <View style={[styles.priorityBadge, { borderColor: priorityColor }]}>
+                    <View style={[styles.priorityDot, { backgroundColor: priorityColor }]} />
+                    <Text style={[styles.priorityBadgeText, { color: priorityColor }]}>{item.priorityLabel}</Text>
+                  </View>
+                </View>
+              </Animated.View>
+            </Pressable>
+          );
+        }}
+      />
+
+      <Modal
+        visible={!!selectedComplaint}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedComplaint(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{selectedComplaint?.title}</Text>
+              <Pressable onPress={() => setSelectedComplaint(null)}>
+                <Ionicons name="close" size={24} color="#1e293b" />
               </Pressable>
             </View>
 
-            {/* Category Badge on Image */}
-            <View style={styles.categoryBadgeContainer}>
-              <View style={styles.categoryBadge}>
-                <Ionicons name={complaint.icon} size={16} color="#fff" />
-                <Text style={styles.categoryText}>{complaint.category}</Text>
+            {selectedComplaint?.imageUrl ? (
+              <Image source={{ uri: selectedComplaint.imageUrl }} style={styles.modalImage} resizeMode="cover" />
+            ) : (
+              <View style={styles.modalImagePlaceholder}>
+                <Ionicons name="image-outline" size={36} color="#94a3b8" />
+                <Text style={styles.modalImageText}>No image available</Text>
               </View>
-            </View>
-          </RNAnimated.View>
+            )}
 
-          {/* Main Content Card */}
-          <View style={styles.mainContentCard}>
-            {/* Title Section */}
-            <View style={styles.titleSection}>
-              <Text style={styles.modalTitle}>{complaint.title}</Text>
-              
-              <View style={styles.metaRow}>
-                <View style={styles.metaItem}>
-                  <Ionicons name="location" size={18} color="#3b82f6" />
-                  <Text style={styles.metaText}>{complaint.location}</Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Ionicons name="calendar-outline" size={18} color="#3b82f6" />
-                  <Text style={styles.metaText}>{complaint.date}</Text>
-                </View>
-              </View>
-            </View>
+            <Text style={styles.modalLabel}>Category</Text>
+            <Text style={styles.modalValue}>{selectedComplaint?.category || "-"}</Text>
 
-            {/* Status Card with Gradient */}
-            <LinearGradient
-              colors={statusColors as any}
-              style={styles.statusCard}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <View style={styles.statusCardContent}>
-                <View style={styles.statusCardHeader}>
-                  <View>
-                    <Text style={styles.statusCardLabel}>Current Status</Text>
-                    <Text style={styles.statusCardValue}>{complaint.status}</Text>
-                  </View>
-                  <View style={styles.priorityBadgeLarge}>
-                    <View style={[styles.priorityDot, { backgroundColor: getPriorityColor(complaint.priority) }]} />
-                    <Text style={styles.priorityTextLarge}>{complaint.priority} Priority</Text>
-                  </View>
-                </View>
+            <Text style={styles.modalLabel}>Description</Text>
+            <Text style={styles.modalValue}>{selectedComplaint?.description || "-"}</Text>
 
-                {/* Progress */}
-                <View style={styles.progressSectionLarge}>
-                  <View style={styles.progressHeaderLarge}>
-                    <Text style={styles.progressLabelLarge}>Progress</Text>
-                    <Text style={styles.progressPercentageLarge}>{complaint.progress}%</Text>
-                  </View>
-                  <View style={styles.progressBarContainerLarge}>
-                    <View
-                      style={[
-                        styles.progressBarLarge,
-                        { width: `${complaint.progress}%` },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.progressStatusText}>
-                    {complaint.progress === 100 ? "✓ Completed" : `${100 - complaint.progress}% remaining`}
-                  </Text>
-                </View>
-              </View>
-            </LinearGradient>
+            <Text style={styles.modalLabel}>Priority Reason</Text>
+            <Text style={styles.modalValue}>{selectedComplaint?.priorityReason || "-"}</Text>
 
-            {/* Description Card */}
-            <View style={styles.descriptionCard}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="document-text-outline" size={20} color="#1e293b" />
-                <Text style={styles.sectionTitle}>Description</Text>
-              </View>
-              <Text style={styles.descriptionText}>{complaint.description}</Text>
-            </View>
-
-            {/* Updates Timeline */}
-            <View style={styles.timelineCard}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="time-outline" size={20} color="#1e293b" />
-                <Text style={styles.sectionTitle}>Timeline</Text>
-              </View>
-
-              {complaint.updates.map((update: any, index: number) => (
-                <View key={index} style={styles.timelineItem}>
-                  <View style={styles.timelineDotContainer}>
-                    <View
-                      style={[
-                        styles.timelineDot,
-                        {
-                          backgroundColor:
-                            update.status === "resolved"
-                              ? "#10b981"
-                              : update.status === "in_progress"
-                              ? "#f59e0b"
-                              : "#3b82f6",
-                        },
-                      ]}
-                    >
-                      <Ionicons 
-                        name={
-                          update.status === "resolved" 
-                            ? "checkmark" 
-                            : update.status === "in_progress"
-                            ? "time"
-                            : "arrow-forward"
-                        } 
-                        size={12} 
-                        color="#fff" 
-                      />
-                    </View>
-                    {index !== complaint.updates.length - 1 && (
-                      <View style={styles.timelineLine} />
-                    )}
-                  </View>
+            <Text style={styles.modalLabel}>Timeline</Text>
+            <View style={styles.timelineWrap}>
+              {selectedComplaint?.timeline.map((item) => (
+                <View key={`${item.date}-${item.message}`} style={styles.timelineItem}>
+                  <View style={styles.timelineDot} />
                   <View style={styles.timelineContent}>
-                    <Text style={styles.timelineMessage}>{update.message}</Text>
-                    <Text style={styles.timelineDate}>{update.date}</Text>
+                    <Text style={styles.timelineMessage}>{item.message}</Text>
+                    <Text style={styles.timelineDate}>{item.date}</Text>
                   </View>
                 </View>
               ))}
             </View>
+
+            {selectedComplaint ? (
+              <Pressable
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    "Delete complaint?",
+                    "This will permanently delete your complaint.",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: () => {
+                          void handleDeleteComplaintFromList(selectedComplaint.id);
+                        },
+                      },
+                    ]
+                  );
+                }}
+              >
+                <Ionicons name="trash-outline" size={16} color="#ef4444" />
+                <Text style={styles.deleteButtonText}>Delete complaint</Text>
+              </Pressable>
+            ) : null}
           </View>
-
-          <View style={styles.bottomPadding} />
-        </RNAnimated.ScrollView>
-      </View>
-    </Modal>
-  );
-}
-
-export default function TrackComplaints() {
-  const [selectedComplaint, setSelectedComplaint] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const handleComplaintPress = (complaint: any) => {
-    setSelectedComplaint(complaint);
-    setModalVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    setTimeout(() => setSelectedComplaint(null), 300);
-  };
-
-  return (
-    <LinearGradient
-      colors={["#f8fafc", "#f1f5f9", "#e2e8f0"]}
-      style={styles.container}
-    >
-      {/* Header */}
-      <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
-        <LinearGradient
-          colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.7)']}
-          style={styles.headerContent}
-        >
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1e293b" />
-          </Pressable>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>My Reports</Text>
-            <Text style={styles.headerSubtitle}>{MOCK_COMPLAINTS.length} active complaints</Text>
-          </View>
-          <View style={{ width: 40 }} />
-        </LinearGradient>
-      </Animated.View>
-
-      {/* Complaints List */}
-      <FlatList
-        data={MOCK_COMPLAINTS}
-        renderItem={({ item }) => (
-          <ComplaintCard
-            complaint={item}
-            onPress={() => handleComplaintPress(item)}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
-
-      <ReportDetailModal
-        complaint={selectedComplaint}
-        visible={modalVisible}
-        onClose={handleCloseModal}
-      />
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -519,68 +454,129 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
-  /* Header */
-  header: {
-    paddingTop: 50,
-    paddingBottom: 8,
-  },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    marginHorizontal: 16,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    gap: 12,
+    backgroundColor: "#f8fafc",
   },
-  headerTextContainer: {
+  loadingText: {
+    color: "#334155",
+    fontSize: 14,
+  },
+  authCard: {
+    marginTop: 160,
+    marginHorizontal: 24,
+    borderRadius: 16,
+    backgroundColor: "#fff",
+    padding: 24,
+    alignItems: "center",
+    gap: 12,
+  },
+  authTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1e293b",
+  },
+  authText: {
+    fontSize: 14,
+    color: "#64748b",
+    textAlign: "center",
+  },
+  authButton: {
+    marginTop: 8,
+    backgroundColor: "#2563eb",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+  },
+  authButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+  header: {
+    paddingTop: 52,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerText: {
     flex: 1,
     alignItems: "center",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "800",
     color: "#1e293b",
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "#64748b",
     marginTop: 2,
+    color: "#64748b",
+    fontSize: 12,
   },
-
-  /* List */
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  refreshButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   listContent: {
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingBottom: 30,
+    paddingTop: 8,
   },
-
-  /* Card */
+  emptyState: {
+    marginTop: 80,
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  emptyTitle: {
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1e293b",
+  },
+  emptyText: {
+    marginTop: 6,
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: 14,
+  },
+  emptyButton: {
+    marginTop: 14,
+    backgroundColor: "#2563eb",
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  emptyButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
   card: {
-    marginBottom: 16,
-    borderRadius: 20,
-    overflow: "hidden",
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  cardGradient: {
-    padding: 20,
-    position: "relative",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    overflow: "hidden",
   },
   priorityStrip: {
     position: "absolute",
@@ -591,429 +587,196 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
+    alignItems: "center",
+    marginBottom: 12,
   },
-  cardIconGradient: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+  iconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    marginRight: 12,
   },
   cardHeaderContent: {
     flex: 1,
-    paddingTop: 2,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
     color: "#1e293b",
-    marginBottom: 6,
-    lineHeight: 22,
   },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  cardLocation: {
-    fontSize: 13,
-    color: "#64748b",
-    fontWeight: "500",
-  },
-  cardDivider: {
-    color: "#cbd5e1",
-    marginHorizontal: 4,
-  },
-  cardDate: {
-    fontSize: 13,
+  cardMeta: {
+    marginTop: 4,
+    fontSize: 12,
     color: "#64748b",
   },
-
-  /* Progress */
-  progressSection: {
-    marginBottom: 16,
+  progressBlock: {
+    marginBottom: 12,
   },
-  progressHeader: {
+  progressTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   progressLabel: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 12,
     color: "#475569",
+    fontWeight: "600",
   },
-  progressPercentage: {
-    fontSize: 14,
-    fontWeight: "700",
+  progressPct: {
+    fontSize: 12,
     color: "#1e293b",
+    fontWeight: "700",
   },
-  progressBarContainer: {
+  progressTrack: {
     height: 8,
+    borderRadius: 8,
     backgroundColor: "#e2e8f0",
-    borderRadius: 4,
     overflow: "hidden",
   },
-  progressBar: {
+  progressFill: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: 8,
   },
-
-  /* Card Footer */
-  cardFooter: {
+  badgeRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
   },
   statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
     borderRadius: 10,
-    gap: 6,
-    flex: 1,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
   },
-  statusText: {
+  statusBadgeText: {
     color: "#fff",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
   },
   priorityBadge: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    borderWidth: 1.5,
     gap: 6,
-    backgroundColor: "#fff",
+    borderWidth: 1.5,
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
   },
   priorityDot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: 8,
   },
-  priorityText: {
-    fontSize: 13,
+  priorityBadgeText: {
+    fontSize: 12,
     fontWeight: "700",
   },
-  chevronContainer: {
-    position: "absolute",
-    right: 16,
-    top: 20,
-  },
-
-  /* Modal */
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "flex-end",
   },
-
-  /* Animated Header */
-  animatedHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 100,
+  modalCard: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    padding: 16,
+    maxHeight: "90%",
   },
-  headerGradient: {
+  modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  headerBackButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#1e293b",
-    flex: 1,
-    textAlign: "center",
-    paddingHorizontal: 8,
-  },
-
-  /* Scroll View */
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-
-  /* Hero Image */
-  heroImageWrapper: {
-    width: "100%",
-    overflow: "hidden",
-    backgroundColor: "#cbd5e1",
-  },
-  heroImage: {
-    width: "100%",
-    height: 300,
-  },
-  imageOverlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-  },
-  floatingBackBtnContainer: {
-    position: "absolute",
-    top: 50,
-    left: 16,
-    zIndex: 10,
-  },
-  floatingBackBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  categoryBadgeContainer: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-  },
-  categoryBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    gap: 6,
-  },
-  categoryText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
-  /* Main Content */
-  mainContentCard: {
-    backgroundColor: "#f8fafc",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginTop: -24,
-    paddingHorizontal: 20,
-    paddingTop: 24,
-  },
-
-  /* Title Section */
-  titleSection: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   modalTitle: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 18,
     fontWeight: "800",
     color: "#1e293b",
-    marginBottom: 16,
-    lineHeight: 32,
+    marginRight: 10,
   },
-  metaRow: {
-    flexDirection: "row",
-    gap: 20,
-  },
-  metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  metaText: {
-    fontSize: 14,
-    color: "#64748b",
-    fontWeight: "500",
-  },
-
-  /* Status Card */
-  statusCard: {
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  statusCardContent: {
-    gap: 16,
-  },
-  statusCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  statusCardLabel: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.9)",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  statusCardValue: {
-    fontSize: 20,
-    color: "#fff",
-    fontWeight: "800",
-  },
-  priorityBadgeLarge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.25)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    gap: 6,
-  },
-  priorityTextLarge: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-
-  /* Progress Large */
-  progressSectionLarge: {
-    gap: 8,
-  },
-  progressHeaderLarge: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  progressLabelLarge: {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.9)",
-    fontWeight: "600",
-  },
-  progressPercentageLarge: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "800",
-  },
-  progressBarContainerLarge: {
-    height: 10,
-    backgroundColor: "rgba(255,255,255,0.25)",
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  progressBarLarge: {
-    height: "100%",
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: 5,
-  },
-  progressStatusText: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.9)",
-    fontWeight: "500",
-  },
-
-  /* Description Card */
-  descriptionCard: {
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+  modalImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 12,
     marginBottom: 12,
   },
-  sectionTitle: {
-    fontSize: 16,
+  modalImagePlaceholder: {
+    width: "100%",
+    height: 180,
+    borderRadius: 12,
+    backgroundColor: "#f1f5f9",
+    marginBottom: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+  },
+  modalImageText: {
+    color: "#64748b",
+    fontSize: 13,
+  },
+  modalLabel: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#64748b",
     fontWeight: "700",
+    textTransform: "uppercase",
+  },
+  modalValue: {
+    marginTop: 4,
     color: "#1e293b",
-  },
-  descriptionText: {
     fontSize: 14,
-    color: "#475569",
-    lineHeight: 22,
+    lineHeight: 20,
   },
-
-  /* Timeline */
-  timelineCard: {
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+  timelineWrap: {
+    marginTop: 8,
+    marginBottom: 8,
   },
   timelineItem: {
     flexDirection: "row",
-    marginTop: 16,
-  },
-  timelineDotContainer: {
-    alignItems: "center",
-    marginRight: 16,
-    paddingTop: 2,
+    alignItems: "flex-start",
+    marginBottom: 10,
   },
   timelineDot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: "#e2e8f0",
-    marginTop: 8,
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+    backgroundColor: "#2563eb",
+    marginTop: 6,
+    marginRight: 10,
   },
   timelineContent: {
     flex: 1,
-    paddingTop: 2,
   },
   timelineMessage: {
-    fontSize: 14,
     color: "#1e293b",
+    fontSize: 13,
     fontWeight: "600",
-    marginBottom: 4,
   },
   timelineDate: {
+    color: "#64748b",
     fontSize: 12,
-    color: "#94a3b8",
-    fontWeight: "500",
+    marginTop: 2,
   },
-
-  bottomPadding: {
-    height: 20,
+  deleteButton: {
+    marginTop: 8,
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    backgroundColor: "#fee2e2",
+    borderColor: "#fecaca",
+    borderWidth: 1,
+  },
+  deleteButtonText: {
+    color: "#b91c1c",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

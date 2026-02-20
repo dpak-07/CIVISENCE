@@ -1,7 +1,125 @@
+import React, { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { getPreferences } from "@/lib/preferences";
+import { sendLocalPush } from "@/lib/push";
+import { sessionStore } from "@/lib/session";
+import { getNotifications } from "@/lib/services/notifications";
+
+const NOTIFICATION_POLL_INTERVAL_MS = 30000;
 
 export default function RootLayout() {
+  const [sessionReady, setSessionReady] = useState(false);
+  const [sessionVersion, setSessionVersion] = useState(0);
+  const knownNotificationIdsRef = useRef<Set<string>>(new Set());
+  const notificationBaselineReadyRef = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const bootstrap = async () => {
+      await sessionStore.hydrate();
+      if (active) {
+        setSessionReady(true);
+      }
+    };
+
+    void bootstrap();
+
+    const unsubscribe = sessionStore.subscribe(() => {
+      setSessionVersion((prev) => prev + 1);
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!sessionReady) {
+      return;
+    }
+
+    knownNotificationIdsRef.current = new Set();
+    notificationBaselineReadyRef.current = false;
+
+    const accessToken = sessionStore.getAccessToken();
+    if (!accessToken) {
+      return;
+    }
+
+    let active = true;
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    const pollNotifications = async () => {
+      try {
+        const notifications = await getNotifications();
+        if (!active) {
+          return;
+        }
+
+        if (!notificationBaselineReadyRef.current) {
+          notifications.forEach((item) => {
+            knownNotificationIdsRef.current.add(item._id);
+          });
+          notificationBaselineReadyRef.current = true;
+          return;
+        }
+
+        const unread = notifications.filter((item) => !item.read);
+        const preferences = await getPreferences();
+        if (!preferences.notificationsEnabled) {
+          unread.forEach((item) => {
+            knownNotificationIdsRef.current.add(item._id);
+          });
+          return;
+        }
+
+        for (const item of unread) {
+          if (knownNotificationIdsRef.current.has(item._id)) {
+            continue;
+          }
+
+          knownNotificationIdsRef.current.add(item._id);
+          await sendLocalPush(item.title, item.message);
+        }
+      } catch {
+        // Ignore polling errors; next cycle will retry.
+      }
+    };
+
+    void pollNotifications();
+    timer = setInterval(() => {
+      void pollNotifications();
+    }, NOTIFICATION_POLL_INTERVAL_MS);
+
+    return () => {
+      active = false;
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [sessionReady, sessionVersion]);
+
+  if (!sessionReady) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#ffffff",
+          }}
+        >
+          <ActivityIndicator size="large" color="#2563eb" />
+        </View>
+      </GestureHandlerRootView>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack

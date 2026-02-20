@@ -1,170 +1,191 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Image,
-  ScrollView,
-  Dimensions,
-  Alert,
-} from "react-native";
-import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Dimensions,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
   FadeInDown,
   FadeInUp,
-  useSharedValue,
+  interpolate,
   useAnimatedStyle,
-  withTiming,
+  useSharedValue,
   withRepeat,
   withSequence,
-  interpolate,
-  runOnJS,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
+import { useFocusEffect } from "@react-navigation/native";
+import { getApiErrorMessage } from "@/lib/api";
+import { logoutUser } from "@/lib/services/auth";
+import { ComplaintRecord, getMyComplaints } from "@/lib/services/complaints";
+import { sessionStore } from "@/lib/session";
 
 const { width, height } = Dimensions.get("window");
 
+type ProfileStat = {
+  label: string;
+  value: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  trend: string;
+  bgGradient: [string, string];
+};
+
+type ReportCardModel = {
+  id: string;
+  title: string;
+  status: string;
+  date: string;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  color: string;
+  priority: string;
+  location: string;
+};
+
+const categoryToIcon = (category: string): keyof typeof MaterialCommunityIcons.glyphMap => {
+  const normalized = category.trim().toLowerCase().replace(/\s+/g, "_");
+  if (normalized.includes("pothole")) {
+    return "alert-circle-outline";
+  }
+  if (normalized.includes("garbage")) {
+    return "trash-can-outline";
+  }
+  if (normalized.includes("drain") || normalized.includes("water") || normalized.includes("leak")) {
+    return "water";
+  }
+  if (normalized.includes("streetlight")) {
+    return "lightbulb-on-outline";
+  }
+  return "map-marker-alert-outline";
+};
+
+const toPriorityMeta = (level?: string): { label: string; color: string } => {
+  if (level === "high") {
+    return { label: "High", color: "#ef4444" };
+  }
+  if (level === "medium") {
+    return { label: "Medium", color: "#f59e0b" };
+  }
+  return { label: "Low", color: "#10b981" };
+};
+
+const toStatusColor = (status: string): string => {
+  switch (status) {
+    case "resolved":
+      return "#10b981";
+    case "in_progress":
+      return "#f59e0b";
+    case "assigned":
+      return "#3b82f6";
+    case "rejected":
+      return "#ef4444";
+    default:
+      return "#6366f1";
+  }
+};
+
+const toStatusLabel = (status: string): string =>
+  status
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
+const toTimeAgo = (value: string): string => {
+  const date = new Date(value);
+  const diffMs = Date.now() - date.getTime();
+  if (!Number.isFinite(diffMs) || diffMs < 0) {
+    return "Just now";
+  }
+
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 60) {
+    return `${minutes || 1} min ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  }
+
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+};
+
+const formatCoordinates = (complaint: ComplaintRecord): string => {
+  const coords = complaint.location?.coordinates;
+  if (!coords || coords.length !== 2) {
+    return "Unknown area";
+  }
+  return `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`;
+};
+
+const buildPhotoStorageKey = (userId: string) => `civisense.profile.photo.${userId}`;
+
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("stats");
-  const [isOnline, setIsOnline] = useState(true);
-  
-  // Animation values
+  const [complaints, setComplaints] = useState<ComplaintRecord[]>([]);
+  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null);
+
+  const user = sessionStore.getUser();
+  const accessToken = sessionStore.getAccessToken();
+
   const pulseAnim = useSharedValue(1);
   const slideAnim = useSharedValue(0);
   const rotateAnim = useSharedValue(0);
-  
+
   useEffect(() => {
-    // Continuous pulse animation for online indicator
     pulseAnim.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 800 }),
-        withTiming(1, { duration: 800 })
-      ),
+      withSequence(withTiming(1.2, { duration: 800 }), withTiming(1, { duration: 800 })),
       -1,
       false
     );
-    
-    // Slide in animation
+
     slideAnim.value = withSpring(1, { damping: 15, stiffness: 100 });
-    
-    // Rotate animation for achievement badges
-    rotateAnim.value = withRepeat(
-      withTiming(360, { duration: 20000 }),
-      -1,
-      false
-    );
-  }, []);
 
-  const stats = [
-    { 
-      label: "Total Reports", 
-      value: "24", 
-      icon: "document-text", 
-      color: "#6366f1",
-      trend: "+12%",
-      bgGradient: ["#6366f1", "#8b5cf6"]
-    },
-    { 
-      label: "In Progress", 
-      value: "8", 
-      icon: "hourglass", 
-      color: "#f59e0b",
-      trend: "+3",
-      bgGradient: ["#f59e0b", "#f97316"]
-    },
-    { 
-      label: "Resolved", 
-      value: "16", 
-      icon: "checkmark-circle", 
-      color: "#10b981",
-      trend: "+5",
-      bgGradient: ["#10b981", "#059669"]
-    },
-  ];
+    rotateAnim.value = withRepeat(withTiming(360, { duration: 20000 }), -1, false);
+  }, [pulseAnim, rotateAnim, slideAnim]);
 
-  const achievements = [
-    { name: "First Reporter", icon: "star", color: "#fbbf24", unlocked: true },
-    { name: "Problem Solver", icon: "bulb", color: "#8b5cf6", unlocked: true },
-    { name: "Community Hero", icon: "people", color: "#ef4444", unlocked: false },
-    { name: "Speed Demon", icon: "flash", color: "#06b6d4", unlocked: true },
-  ];
+  const loadProfileData = useCallback(async () => {
+    if (!accessToken || !user?.id) {
+      setComplaints([]);
+      setProfilePhotoUri(null);
+      return;
+    }
 
-  const recentReports = [
-    {
-      id: 1,
-      title: "Broken Traffic Light",
-      status: "Resolved",
-      date: "2 hours ago",
-      icon: "traffic-light",
-      color: "#10b981",
-      priority: "High",
-      location: "5th Avenue",
-      likes: 12,
-    },
-    {
-      id: 2,
-      title: "Pothole Emergency",
-      status: "In Progress",
-      date: "5 hours ago",
-      icon: "warning",
-      color: "#f59e0b",
-      priority: "Critical",
-      location: "Main Street",
-      likes: 8,
-    },
-    {
-      id: 3,
-      title: "Graffiti Cleanup",
-      status: "Pending",
-      date: "1 day ago",
-      icon: "brush",
-      color: "#6366f1",
-      priority: "Low",
-      location: "Park Avenue",
-      likes: 5,
-    },
-  ];
+    try {
+      const [records, savedPhoto] = await Promise.all([
+        getMyComplaints(),
+        AsyncStorage.getItem(buildPhotoStorageKey(user.id)),
+      ]);
+      setComplaints(records);
+      setProfilePhotoUri(savedPhoto);
+    } catch (error) {
+      Alert.alert("Profile error", getApiErrorMessage(error));
+    }
+  }, [accessToken, user?.id]);
 
-  const zones = [
-    { 
-      name: "Downtown District", 
-      reports: 12, 
-      resolved: 8, 
-      active: 4,
-      satisfaction: 92,
-      responseTime: "2.5h"
-    },
-    { 
-      name: "West Side", 
-      reports: 8, 
-      resolved: 5, 
-      active: 3,
-      satisfaction: 88,
-      responseTime: "3.1h"
-    },
-    { 
-      name: "East Park", 
-      reports: 4, 
-      resolved: 3, 
-      active: 1,
-      satisfaction: 95,
-      responseTime: "1.8h"
-    },
-  ];
+  useFocusEffect(
+    useCallback(() => {
+      void loadProfileData();
+    }, [loadProfileData])
+  );
 
-  // Animated styles
   const pulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseAnim.value }],
   }));
 
   const slideStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: interpolate(slideAnim.value, [0, 1], [50, 0]) },
-    ],
+    transform: [{ translateY: interpolate(slideAnim.value, [0, 1], [50, 0]) }],
     opacity: slideAnim.value,
   }));
 
@@ -172,37 +193,169 @@ export default function Profile() {
     transform: [{ rotate: `${rotateAnim.value}deg` }],
   }));
 
-  const handleLikeReport = (reportId: number) => {
-    // Animate like action
-    Alert.alert("Liked!", "You liked this report");
+  const stats: ProfileStat[] = useMemo(() => {
+    const total = complaints.length;
+    const inProgress = complaints.filter(
+      (item) => item.status === "assigned" || item.status === "in_progress"
+    ).length;
+    const resolved = complaints.filter((item) => item.status === "resolved").length;
+
+    return [
+      {
+        label: "Total Reports",
+        value: String(total),
+        icon: "document-text",
+        trend: total > 0 ? `+${total}` : "0",
+        bgGradient: ["#6366f1", "#8b5cf6"],
+      },
+      {
+        label: "In Progress",
+        value: String(inProgress),
+        icon: "hourglass",
+        trend: inProgress > 0 ? `+${inProgress}` : "0",
+        bgGradient: ["#f59e0b", "#f97316"],
+      },
+      {
+        label: "Resolved",
+        value: String(resolved),
+        icon: "checkmark-circle",
+        trend: resolved > 0 ? `+${resolved}` : "0",
+        bgGradient: ["#10b981", "#059669"],
+      },
+    ];
+  }, [complaints]);
+
+  const recentReports = useMemo<ReportCardModel[]>(() => {
+    return complaints.slice(0, 3).map((complaint) => {
+      const priority = toPriorityMeta(complaint.priority?.level);
+      const statusColor = toStatusColor(complaint.status);
+
+      return {
+        id: complaint._id,
+        title: complaint.title,
+        status: toStatusLabel(complaint.status),
+        date: toTimeAgo(complaint.createdAt),
+        icon: categoryToIcon(complaint.category),
+        color: statusColor,
+        priority: priority.label,
+        location: formatCoordinates(complaint),
+      };
+    });
+  }, [complaints]);
+
+  const zones = useMemo(() => {
+    const duplicateCount = complaints.filter((item) => item.duplicateInfo?.isDuplicate).length;
+    return [
+      {
+        name: "My Reports",
+        reports: complaints.length,
+        resolved: complaints.filter((item) => item.status === "resolved").length,
+        active: complaints.filter(
+          (item) => item.status === "assigned" || item.status === "in_progress"
+        ).length,
+        satisfaction: complaints.length === 0 ? 100 : Math.max(55, 100 - duplicateCount * 5),
+        responseTime: complaints.length === 0 ? "-" : "AI Routed",
+      },
+      {
+        name: "Duplicates",
+        reports: duplicateCount,
+        resolved: duplicateCount,
+        active: 0,
+        satisfaction: duplicateCount === 0 ? 100 : 80,
+        responseTime: "Auto merged",
+      },
+    ];
+  }, [complaints]);
+
+  const handlePickProfilePhoto = async () => {
+    if (!user?.id) {
+      Alert.alert("Login required", "Please login first.");
+      return;
+    }
+
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Permission needed", "Allow photo access to set your profile photo.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+
+    if (result.canceled || !result.assets?.[0]?.uri) {
+      return;
+    }
+
+    const newUri = result.assets[0].uri;
+    setProfilePhotoUri(newUri);
+    await AsyncStorage.setItem(buildPhotoStorageKey(user.id), newUri);
   };
 
-  const TabButton = ({ title, isActive, onPress }: any) => (
-    <Pressable
-      onPress={onPress}
-      style={[styles.tabButton, isActive && styles.activeTab]}
-    >
-      <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-        {title}
-      </Text>
-      {isActive && <View style={styles.tabIndicator} />}
+  const handleRemoveProfilePhoto = async () => {
+    if (!user?.id) {
+      return;
+    }
+
+    await AsyncStorage.removeItem(buildPhotoStorageKey(user.id));
+    setProfilePhotoUri(null);
+  };
+
+  const handleLikeReport = () => {
+    Alert.alert("Saved", "Tracking opened in your complaint list.", [
+      {
+        text: "Open Tracker",
+        onPress: () => router.push("/track"),
+      },
+      {
+        text: "Close",
+        style: "cancel",
+      },
+    ]);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      router.replace("/auth/login");
+    } catch (error) {
+      Alert.alert("Logout failed", getApiErrorMessage(error));
+    }
+  };
+
+  if (!accessToken || !user) {
+    return (
+      <LinearGradient colors={["#667eea", "#764ba2", "#f093fb"]} style={styles.container}>
+        <View style={styles.loggedOutWrap}>
+          <Ionicons name="lock-closed" size={56} color="#fff" />
+          <Text style={styles.loggedOutTitle}>Login Required</Text>
+          <Text style={styles.loggedOutText}>Sign in to access your profile and reports.</Text>
+          <Pressable style={styles.loggedOutButton} onPress={() => router.push("/auth/login")}>
+            <Text style={styles.loggedOutButtonText}>Go to Login</Text>
+          </Pressable>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  const avatarUri = profilePhotoUri || `https://i.pravatar.cc/200?u=${user.id}`;
+
+  const TabButton = ({ title, isActive, onPress }: { title: string; isActive: boolean; onPress: () => void }) => (
+    <Pressable onPress={onPress} style={[styles.tabButton, isActive && styles.activeTab]}>
+      <Text style={[styles.tabText, isActive && styles.activeTabText]}>{title}</Text>
+      {isActive ? <View style={styles.tabIndicator} /> : null}
     </Pressable>
   );
 
-  const StatCard = ({ stat, index }: any) => (
-    <Animated.View
-      entering={FadeInUp.delay(index * 100).duration(800)}
-      style={styles.statCardContainer}
-    >
-      <LinearGradient
-        colors={stat.bgGradient}
-        style={styles.statCard}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
+  const StatCard = ({ stat, index }: { stat: ProfileStat; index: number }) => (
+    <Animated.View entering={FadeInUp.delay(index * 100).duration(800)} style={styles.statCardContainer}>
+      <LinearGradient colors={stat.bgGradient} style={styles.statCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
         <View style={styles.statHeader}>
           <View style={styles.statIconContainer}>
-            <Ionicons name={stat.icon as any} size={24} color="white" />
+            <Ionicons name={stat.icon} size={24} color="white" />
           </View>
           <Text style={styles.statTrend}>{stat.trend}</Text>
         </View>
@@ -212,43 +365,31 @@ export default function Profile() {
     </Animated.View>
   );
 
-  const ReportCard = ({ report, index }: any) => (
-    <Animated.View
-      entering={FadeInUp.delay(index * 100).duration(600)}
-      style={styles.reportCardContainer}
-    >
+  const ReportCard = ({ report, index }: { report: ReportCardModel; index: number }) => (
+    <Animated.View entering={FadeInUp.delay(index * 100).duration(600)} style={styles.reportCardContainer}>
       <BlurView intensity={20} style={styles.reportCard}>
         <View style={styles.reportHeader}>
-          <View style={[styles.reportIcon, { backgroundColor: report.color + "20" }]}>
-            <MaterialCommunityIcons 
-              name={report.icon as any} 
-              size={20} 
-              color={report.color} 
-            />
+          <View style={[styles.reportIcon, { backgroundColor: `${report.color}20` }]}>
+            <MaterialCommunityIcons name={report.icon} size={20} color={report.color} />
           </View>
           <View style={styles.reportInfo}>
             <Text style={styles.reportTitle}>{report.title}</Text>
-            <Text style={styles.reportLocation}>📍 {report.location}</Text>
+            <Text style={styles.reportLocation}>Location: {report.location}</Text>
           </View>
           <View style={[styles.priorityBadge, { backgroundColor: report.color }]}>
             <Text style={styles.priorityText}>{report.priority}</Text>
           </View>
         </View>
-        
+
         <View style={styles.reportFooter}>
           <Text style={styles.reportDate}>{report.date}</Text>
           <View style={styles.reportActions}>
-            <Pressable 
-              onPress={() => handleLikeReport(report.id)}
-              style={styles.likeButton}
-            >
-              <Ionicons name="heart" size={16} color="#ef4444" />
-              <Text style={styles.likeCount}>{report.likes}</Text>
+            <Pressable onPress={handleLikeReport} style={styles.likeButton}>
+              <Ionicons name="eye" size={16} color="#60a5fa" />
+              <Text style={styles.likeCount}>Track</Text>
             </Pressable>
-            <View style={[styles.statusBadge, { backgroundColor: report.color + "15" }]}>
-              <Text style={[styles.statusText, { color: report.color }]}>
-                {report.status}
-              </Text>
+            <View style={[styles.statusBadge, { backgroundColor: `${report.color}15` }]}>
+              <Text style={[styles.statusText, { color: report.color }]}>{report.status}</Text>
             </View>
           </View>
         </View>
@@ -258,57 +399,39 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      {/* Animated Background */}
-      <LinearGradient
-        colors={["#667eea", "#764ba2", "#f093fb"]}
-        style={StyleSheet.absoluteFillObject}
-      >
+      <LinearGradient colors={["#667eea", "#764ba2", "#f093fb"]} style={StyleSheet.absoluteFillObject}>
         <Animated.View style={[styles.backgroundPattern, rotateStyle]} />
       </LinearGradient>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Header */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
-          <Pressable 
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="white" />
           </Pressable>
           <Text style={styles.title}>Profile</Text>
-          <Pressable style={styles.settingsButton}>
+          <Pressable style={styles.settingsButton} onPress={() => router.push("/settings")}>
             <Ionicons name="settings" size={24} color="white" />
           </Pressable>
         </Animated.View>
 
-        {/* Profile Card */}
-        <Animated.View
-          entering={FadeInUp.delay(100).duration(800)}
-          style={[styles.profileCard, slideStyle]}
-        >
+        <Animated.View entering={FadeInUp.delay(100).duration(800)} style={[styles.profileCard, slideStyle]}>
           <BlurView intensity={40} style={styles.profileBlur}>
             <View style={styles.profileHeader}>
               <View style={styles.avatarContainer}>
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/200?u=user" }}
-                  style={styles.avatar}
-                />
+                <Image source={{ uri: avatarUri }} style={styles.avatar} />
                 <Animated.View style={[styles.onlineIndicator, pulseStyle]}>
                   <View style={styles.onlineDot} />
                 </Animated.View>
+                <Pressable style={styles.avatarEditButton} onPress={() => void handlePickProfilePhoto()}>
+                  <Ionicons name="camera" size={14} color="#fff" />
+                </Pressable>
               </View>
-              
+
               <View style={styles.profileInfo}>
-                <Text style={styles.name}>John Doe</Text>
-                <Text style={styles.email}>john@example.com</Text>
+                <Text style={styles.name}>{user.name}</Text>
+                <Text style={styles.email}>{user.email}</Text>
                 <View style={styles.badgeContainer}>
-                  <LinearGradient
-                    colors={["#fbbf24", "#f59e0b"]}
-                    style={styles.badge}
-                  >
+                  <LinearGradient colors={["#fbbf24", "#f59e0b"]} style={styles.badge}>
                     <Ionicons name="star" size={12} color="white" />
                     <Text style={styles.badgeText}>Citizen Reporter</Text>
                   </LinearGradient>
@@ -316,66 +439,27 @@ export default function Profile() {
               </View>
             </View>
 
-            {/* Achievement Badges */}
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={styles.achievementScroll}
-              contentContainerStyle={styles.achievementContainer}
-            >
-              {achievements.map((achievement, index) => (
-                <Animated.View
-                  key={achievement.name}
-                  entering={FadeInUp.delay(200 + index * 50).duration(600)}
-                  style={[
-                    styles.achievementBadge,
-                    { opacity: achievement.unlocked ? 1 : 0.4 }
-                  ]}
-                >
-                  <LinearGradient
-                    colors={achievement.unlocked 
-                      ? [achievement.color, achievement.color + "80"] 
-                      : ["#6b7280", "#4b5563"]
-                    }
-                    style={styles.achievementGradient}
-                  >
-                    <MaterialCommunityIcons 
-                      name={achievement.icon as any} 
-                      size={16} 
-                      color="white" 
-                    />
-                  </LinearGradient>
-                  <Text style={styles.achievementText}>{achievement.name}</Text>
-                </Animated.View>
-              ))}
-            </ScrollView>
+            {profilePhotoUri ? (
+              <Pressable style={styles.photoNotice} onPress={() => void handleRemoveProfilePhoto()}>
+                <Ionicons name="trash-outline" size={14} color="#fee2e2" />
+                <Text style={styles.photoNoticeText}>Tap to remove profile photo</Text>
+              </Pressable>
+            ) : (
+              <View style={styles.photoNotice}>
+                <Ionicons name="notifications" size={14} color="#bfdbfe" />
+                <Text style={styles.photoNoticeText}>Notification: Set up your profile photo</Text>
+              </View>
+            )}
           </BlurView>
         </Animated.View>
 
-        {/* Tab Navigation */}
-        <Animated.View 
-          entering={FadeInUp.delay(200).duration(600)}
-          style={styles.tabContainer}
-        >
-          <TabButton 
-            title="Statistics" 
-            isActive={selectedTab === "stats"} 
-            onPress={() => setSelectedTab("stats")}
-          />
-          <TabButton 
-            title="Reports" 
-            isActive={selectedTab === "reports"} 
-            onPress={() => setSelectedTab("reports")}
-          />
-          <TabButton 
-            title="Zones" 
-            isActive={selectedTab === "zones"} 
-            onPress={() => setSelectedTab("zones")}
-          />
+        <Animated.View entering={FadeInUp.delay(200).duration(600)} style={styles.tabContainer}>
+          <TabButton title="Statistics" isActive={selectedTab === "stats"} onPress={() => setSelectedTab("stats")} />
+          <TabButton title="Reports" isActive={selectedTab === "reports"} onPress={() => setSelectedTab("reports")} />
+          <TabButton title="Zones" isActive={selectedTab === "zones"} onPress={() => setSelectedTab("zones")} />
         </Animated.View>
 
-        {/* Content based on selected tab */}
-        {selectedTab === "stats" && (
+        {selectedTab === "stats" ? (
           <View style={styles.tabContent}>
             <View style={styles.statsGrid}>
               {stats.map((stat, index) => (
@@ -383,36 +467,33 @@ export default function Profile() {
               ))}
             </View>
           </View>
-        )}
+        ) : null}
 
-        {selectedTab === "reports" && (
+        {selectedTab === "reports" ? (
           <View style={styles.tabContent}>
-            {recentReports.map((report, index) => (
-              <ReportCard key={report.id} report={report} index={index} />
-            ))}
+            {recentReports.length > 0 ? (
+              recentReports.map((report, index) => <ReportCard key={report.id} report={report} index={index} />)
+            ) : (
+              <BlurView intensity={20} style={styles.emptyReports}>
+                <Text style={styles.emptyReportsText}>No reports yet. Submit your first complaint.</Text>
+              </BlurView>
+            )}
           </View>
-        )}
+        ) : null}
 
-        {selectedTab === "zones" && (
+        {selectedTab === "zones" ? (
           <View style={styles.tabContent}>
             {zones.map((zone, index) => (
-              <Animated.View
-                key={zone.name}
-                entering={FadeInUp.delay(index * 100).duration(600)}
-                style={styles.zoneCardContainer}
-              >
+              <Animated.View key={zone.name} entering={FadeInUp.delay(index * 100).duration(600)} style={styles.zoneCardContainer}>
                 <BlurView intensity={20} style={styles.zoneCard}>
                   <View style={styles.zoneHeader}>
-                    <LinearGradient
-                      colors={["#6366f1", "#8b5cf6"]}
-                      style={styles.zoneIcon}
-                    >
+                    <LinearGradient colors={["#6366f1", "#8b5cf6"]} style={styles.zoneIcon}>
                       <Ionicons name="location" size={18} color="white" />
                     </LinearGradient>
                     <View style={styles.zoneInfo}>
                       <Text style={styles.zoneName}>{zone.name}</Text>
                       <Text style={styles.zoneStats}>
-                        {zone.reports} reports • {zone.responseTime} avg response
+                        {zone.reports} reports | {zone.responseTime}
                       </Text>
                     </View>
                     <View style={styles.satisfactionContainer}>
@@ -420,14 +501,14 @@ export default function Profile() {
                       <Text style={styles.satisfactionLabel}>Satisfaction</Text>
                     </View>
                   </View>
-                  
+
                   <View style={styles.zoneProgress}>
                     <View style={styles.progressBar}>
-                      <View 
+                      <View
                         style={[
-                          styles.progressFill, 
-                          { width: `${(zone.resolved / zone.reports) * 100}%` }
-                        ]} 
+                          styles.progressFill,
+                          { width: `${zone.reports > 0 ? (zone.resolved / zone.reports) * 100 : 100}%` },
+                        ]}
                       />
                     </View>
                     <Text style={styles.progressText}>
@@ -438,31 +519,21 @@ export default function Profile() {
               </Animated.View>
             ))}
           </View>
-        )}
+        ) : null}
 
-        {/* Quick Actions */}
-        <Animated.View
-          entering={FadeInUp.delay(400).duration(600)}
-          style={styles.quickActions}
-        >
+        <Animated.View entering={FadeInUp.delay(400).duration(600)} style={styles.quickActions}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionGrid}>
             {[
-              { icon: "heart-outline", label: "Saved", color: "#ef4444" },
-              { icon: "notifications-outline", label: "Alerts", color: "#f59e0b" },
-              { icon: "shield-checkmark", label: "Security", color: "#10b981" },
-              { icon: "help-circle-outline", label: "Help", color: "#6366f1" },
+              { icon: "camera-outline", label: "Set Photo", color: "#3b82f6", onPress: () => void handlePickProfilePhoto() },
+              { icon: "notifications-outline", label: "Alerts", color: "#f59e0b", onPress: () => router.push("/settings") },
+              { icon: "list-outline", label: "Track", color: "#10b981", onPress: () => router.push("/track") },
+              { icon: "help-circle-outline", label: "Help", color: "#6366f1", onPress: () => Alert.alert("Help", "Support is available in Settings.") },
             ].map((action, index) => (
-              <Animated.View
-                key={action.label}
-                entering={FadeInUp.delay(450 + index * 50).duration(500)}
-              >
-                <Pressable style={styles.actionButton}>
-                  <LinearGradient
-                    colors={[action.color, action.color + "80"]}
-                    style={styles.actionIconContainer}
-                  >
-                    <Ionicons name={action.icon as any} size={20} color="white" />
+              <Animated.View key={action.label} entering={FadeInUp.delay(450 + index * 50).duration(500)}>
+                <Pressable style={styles.actionButton} onPress={action.onPress}>
+                  <LinearGradient colors={[action.color, `${action.color}80`]} style={styles.actionIconContainer}>
+                    <Ionicons name={action.icon as keyof typeof Ionicons.glyphMap} size={20} color="white" />
                   </LinearGradient>
                   <Text style={styles.actionLabel}>{action.label}</Text>
                 </Pressable>
@@ -471,16 +542,9 @@ export default function Profile() {
           </View>
         </Animated.View>
 
-        {/* Logout Button */}
-        <Animated.View
-          entering={FadeInUp.delay(500).duration(600)}
-          style={styles.logoutContainer}
-        >
-          <Pressable>
-            <LinearGradient
-              colors={["#ef4444", "#dc2626"]}
-              style={styles.logoutButton}
-            >
+        <Animated.View entering={FadeInUp.delay(500).duration(600)} style={styles.logoutContainer}>
+          <Pressable onPress={() => void handleLogout()}>
+            <LinearGradient colors={["#ef4444", "#dc2626"]} style={styles.logoutButton}>
               <Ionicons name="log-out-outline" size={18} color="white" />
               <Text style={styles.logoutText}>Sign Out</Text>
             </LinearGradient>
@@ -494,6 +558,36 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loggedOutWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  loggedOutTitle: {
+    marginTop: 14,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  loggedOutText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "rgba(255,255,255,0.88)",
+    textAlign: "center",
+  },
+  loggedOutButton: {
+    marginTop: 16,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  loggedOutButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
   },
   backgroundPattern: {
     position: "absolute",
@@ -538,8 +632,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
-  // Profile Card
   profileCard: {
     marginHorizontal: 20,
     marginBottom: 20,
@@ -552,7 +644,7 @@ const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   avatarContainer: {
     position: "relative",
@@ -563,6 +655,19 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 35,
     borderWidth: 3,
+    borderColor: "white",
+  },
+  avatarEditButton: {
+    position: "absolute",
+    bottom: -2,
+    left: -2,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#3b82f6",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
     borderColor: "white",
   },
   onlineIndicator: {
@@ -612,35 +717,21 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "white",
   },
-
-  // Achievement Badges
-  achievementScroll: {
-    marginTop: 10,
-  },
-  achievementContainer: {
-    paddingHorizontal: 4,
-    gap: 12,
-  },
-  achievementBadge: {
+  photoNotice: {
+    marginTop: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    backgroundColor: "rgba(15,23,42,0.28)",
+    flexDirection: "row",
     alignItems: "center",
-    minWidth: 70,
+    gap: 6,
   },
-  achievementGradient: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
+  photoNoticeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
-  achievementText: {
-    fontSize: 9,
-    color: "rgba(255,255,255,0.9)",
-    textAlign: "center",
-    fontWeight: "500",
-  },
-
-  // Tab Navigation
   tabContainer: {
     flexDirection: "row",
     marginHorizontal: 20,
@@ -675,13 +766,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#667eea",
     borderRadius: 1,
   },
-
-  // Tab Content
   tabContent: {
     paddingHorizontal: 20,
   },
-
-  // Stats
   statsGrid: {
     gap: 12,
   },
@@ -723,8 +810,6 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.8)",
     fontWeight: "500",
   },
-
-  // Reports
   reportCardContainer: {
     marginBottom: 12,
     borderRadius: 16,
@@ -802,8 +887,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "600",
   },
-
-  // Zones
+  emptyReports: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
+  },
+  emptyReportsText: {
+    color: "#fff",
+    fontSize: 13,
+    textAlign: "center",
+  },
   zoneCardContainer: {
     marginBottom: 12,
     borderRadius: 16,
@@ -869,8 +962,6 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.8)",
     textAlign: "center",
   },
-
-  // Quick Actions
   quickActions: {
     marginHorizontal: 20,
     marginTop: 20,
@@ -904,8 +995,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textAlign: "center",
   },
-
-  // Logout
   logoutContainer: {
     marginHorizontal: 20,
     marginTop: 10,

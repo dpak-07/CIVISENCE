@@ -1,7 +1,9 @@
 ﻿const { StatusCodes } = require('http-status-codes');
 const mongoose = require('mongoose');
 const Complaint = require('../models/Complaint');
+const Notification = require('../models/Notification');
 const ApiError = require('../utils/ApiError');
+const { ROLES } = require('../constants/roles');
 const { detectDuplicate } = require('./duplicateDetectionService');
 const { autoRouteComplaint } = require('./geoRoutingService');
 const { incrementWorkload, decrementWorkload } = require('./workloadService');
@@ -303,9 +305,48 @@ const updateComplaintStatus = async ({ complaintId, status }) => {
   return Complaint.findById(complaint._id).populate(complaintPopulate).lean();
 };
 
+const deleteComplaint = async ({ complaintId, requesterId, requesterRole }) => {
+  const complaint = await getComplaintOrThrow(complaintId);
+
+  const isAdmin = requesterRole === ROLES.ADMIN;
+  if (!isAdmin && complaint.reportedBy.toString() !== requesterId) {
+    throw new ApiError(StatusCodes.FORBIDDEN, 'You can only delete your own complaint');
+  }
+
+  if (!complaint.duplicateInfo?.isDuplicate && (complaint.duplicateInfo?.duplicateCount || 0) > 0) {
+    throw new ApiError(
+      StatusCodes.CONFLICT,
+      'Cannot delete a master complaint while it has linked duplicates'
+    );
+  }
+
+  if (
+    complaint.assignedMunicipalOffice &&
+    !complaint.duplicateInfo?.isDuplicate &&
+    !TERMINAL_STATUS.includes(complaint.status)
+  ) {
+    await decrementWorkload(complaint.assignedMunicipalOffice);
+  }
+
+  if (complaint.duplicateInfo?.isDuplicate && complaint.duplicateInfo.masterComplaintId) {
+    await Complaint.findByIdAndUpdate(complaint.duplicateInfo.masterComplaintId, {
+      $inc: { 'duplicateInfo.duplicateCount': -1 }
+    });
+  }
+
+  await Notification.deleteMany({ complaintId: complaint._id });
+  await Complaint.findByIdAndDelete(complaint._id);
+
+  return {
+    deleted: true,
+    complaintId: complaint._id.toString()
+  };
+};
+
 module.exports = {
   createComplaint,
   getComplaints,
   getComplaintById,
-  updateComplaintStatus
+  updateComplaintStatus,
+  deleteComplaint
 };

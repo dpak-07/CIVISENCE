@@ -18,6 +18,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import { getApiErrorMessage } from "@/lib/api";
+import { sessionStore } from "@/lib/session";
+import { createComplaint } from "@/lib/services/complaints";
 
 const { width } = Dimensions.get("window");
 
@@ -30,6 +33,58 @@ const CATEGORIES = [
   { id: 6, name: "Other", icon: "help-circle", color: "#6B7280", bg: "#F3F4F6" },
 ];
 
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+const formatCoordinates = (latitude: number, longitude: number): string =>
+  `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+const reverseGeocodeToArea = async (
+  latitude: number,
+  longitude: number
+): Promise<string | null> => {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as {
+      address?: Record<string, string | undefined>;
+      display_name?: string;
+    };
+
+    const address = data.address ?? {};
+    const areaParts = [
+      address.suburb,
+      address.neighbourhood,
+      address.city_district,
+      address.city || address.town || address.village,
+      address.state,
+    ]
+      .filter((part): part is string => Boolean(part && part.trim()))
+      .map((part) => part.trim());
+
+    const deduped = Array.from(new Set(areaParts));
+    if (deduped.length > 0) {
+      return deduped.join(", ");
+    }
+
+    if (typeof data.display_name === "string" && data.display_name.trim()) {
+      return data.display_name.trim();
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export default function ReportIssue() {
   const params = useLocalSearchParams();
   const scrollViewRef = useRef(null);
@@ -37,7 +92,8 @@ export default function ReportIssue() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [image, setImage] = useState(null);
+  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
+  const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -45,10 +101,11 @@ export default function ReportIssue() {
 
   // Update image when params change
   useEffect(() => {
-    if (params?.photo) {
-      setImage(String(params.photo));
+    const photoParam = params?.photo;
+    if (typeof photoParam === "string" && photoParam.length > 0) {
+      setImage(photoParam);
     }
-  }, [params?.photo]);
+  }, [params?.photo, params?.captureTs]);
 
   useEffect(() => {
     if (image && !location) {
@@ -68,25 +125,10 @@ export default function ReportIssue() {
 
       const userLocation = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = userLocation.coords;
+      setCoordinates({ latitude, longitude });
 
-      const addresses = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-
-      if (addresses.length > 0) {
-        const addr = addresses[0];
-        const fullAddress = `${addr.street || ""}, ${addr.city || ""}, ${
-          addr.region || ""
-        }`
-          .replace(/^,\s*/, "")
-          .replace(/,\s*$/, "");
-        setLocation(
-          fullAddress || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-        );
-      } else {
-        setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-      }
+      const area = await reverseGeocodeToArea(latitude, longitude);
+      setLocation(area || formatCoordinates(latitude, longitude));
     } catch (error) {
       console.error("Location Error:", error);
       Alert.alert("Error", "Could not get your location. Please try again.");
@@ -103,23 +145,73 @@ export default function ReportIssue() {
     setImage(null);
   };
 
+  const ensureAuthenticated = () => {
+    const accessToken = sessionStore.getAccessToken();
+
+    if (accessToken) {
+      return true;
+    }
+
+    Alert.alert("Login required", "Please sign in before submitting a complaint.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Sign In",
+        onPress: () => router.push("/auth/login"),
+      },
+    ]);
+
+    return false;
+  };
+
+  const buildComplaintTitle = (selectedCategory: string, locationText: string) => {
+    if (!locationText.trim()) {
+      return `${selectedCategory} issue reported`;
+    }
+
+    return `${selectedCategory} issue near ${locationText.trim().slice(0, 70)}`;
+  };
+
   const handleConfirmSubmit = async () => {
+    if (!ensureAuthenticated()) {
+      return;
+    }
+
+    if (!coordinates) {
+      Alert.alert("Missing location", "Please capture your location before submitting.");
+      return;
+    }
+
     setShowConfirmation(false);
     setLoading(true);
 
     try {
-      // Mock API call - replace with actual API
-      setTimeout(() => {
-        setLoading(false);
-        setShowSuccess(true);
-      }, 2000);
+      const normalizedDescription =
+        description.trim().length > 0
+          ? description.trim()
+          : `${category} issue reported via mobile app.`;
+
+      await createComplaint({
+        title: buildComplaintTitle(category, location),
+        description: normalizedDescription,
+        category,
+        longitude: coordinates.longitude,
+        latitude: coordinates.latitude,
+        imageUri: image,
+      });
+
+      setShowSuccess(true);
     } catch (error) {
+      Alert.alert("Submission failed", getApiErrorMessage(error));
+    } finally {
       setLoading(false);
-      Alert.alert("Error", "Failed to report issue");
     }
   };
 
   const handleSubmit = () => {
+    if (!ensureAuthenticated()) {
+      return;
+    }
+
     if (!image) {
       Alert.alert("Required", "Please take a photo of the issue");
       return;
@@ -132,6 +224,10 @@ export default function ReportIssue() {
       Alert.alert("Required", "Please get your location");
       return;
     }
+    if (!coordinates) {
+      Alert.alert("Required", "Location coordinates are missing. Tap refresh location.");
+      return;
+    }
     if (description.trim().length > 0 && description.trim().length < 10) {
       Alert.alert("Invalid", "Description should be at least 10 characters or leave it empty");
       return;
@@ -142,7 +238,7 @@ export default function ReportIssue() {
 
   const isPhotoValid = !!image;
   const isCategoryValid = !!category;
-  const isLocationValid = !!location;
+  const isLocationValid = !!location && !!coordinates;
   const isDescriptionValid = description.trim().length === 0 || description.trim().length >= 10;
   const isFormValid =
     isPhotoValid && isCategoryValid && isLocationValid && isDescriptionValid;
@@ -255,7 +351,7 @@ export default function ReportIssue() {
                     ]}
                   >
                     <Ionicons
-                      name={cat.icon}
+                      name={cat.icon as keyof typeof Ionicons.glyphMap}
                       size={24}
                       color={cat.color}
                     />
@@ -502,6 +598,7 @@ export default function ReportIssue() {
                   setCategory("");
                   setDescription("");
                   setLocation("");
+                  setCoordinates(null);
                   setImage(null);
                   router.push("/");
                 }}
@@ -517,6 +614,7 @@ export default function ReportIssue() {
                   setCategory("");
                   setDescription("");
                   setLocation("");
+                  setCoordinates(null);
                   setImage(null);
                   router.push("/track");
                 }}

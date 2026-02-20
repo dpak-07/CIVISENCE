@@ -16,6 +16,26 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## Backend API setup
+
+Set your backend base URL before launching the app:
+
+```bash
+EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:5000/api
+```
+
+Notes:
+- Android emulator usually needs `http://10.0.2.2:5000/api`.
+- Physical devices should use your machine LAN IP, for example `http://192.168.1.20:5000/api`.
+
+## Session + push notifications
+
+- Auth session is now persisted locally with AsyncStorage.
+- App restores session at startup before rendering routes.
+- App polls backend `GET /notifications` every 30 seconds when logged in.
+- New unread backend notifications are shown as local push notifications.
+- Logout clears the persisted session.
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

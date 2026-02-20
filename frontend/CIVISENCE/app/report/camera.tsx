@@ -14,10 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function CameraScreen() {
-  const cameraRef = useRef(null);
+  const cameraRef = useRef<CameraView | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCapturing, setIsCapturing] = useState(false);
-  const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
 
   if (!permission) {
     return (
@@ -66,10 +66,17 @@ export default function CameraScreen() {
   };
 
   const handleConfirm = () => {
-    router.back();
-    setTimeout(() => {
-      router.setParams({ photo: capturedPhoto });
-    }, 100);
+    if (!capturedPhoto) {
+      return;
+    }
+
+    router.replace({
+      pathname: "/report",
+      params: {
+        photo: capturedPhoto,
+        captureTs: String(Date.now()),
+      },
+    });
   };
 
   const handleRetake = () => {
@@ -129,7 +136,10 @@ export default function CameraScreen() {
   // Camera view
   return (
     <SafeAreaView style={styles.container}>
-      <CameraView style={styles.camera} ref={cameraRef} facing="back">
+      <View style={styles.cameraWrapper}>
+        <CameraView style={styles.camera} ref={cameraRef} facing="back" />
+
+        <View style={styles.cameraOverlay} pointerEvents="box-none">
         {/* Close Button */}
         <View style={styles.headerBar}>
           <Pressable
@@ -181,7 +191,8 @@ export default function CameraScreen() {
             {isCapturing ? "Capturing..." : "Press to capture"}
           </Text>
         </View>
-      </CameraView>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -196,6 +207,14 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
     width: "100%",
+  },
+  cameraWrapper: {
+    flex: 1,
+    width: "100%",
+  },
+  cameraOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "space-between",
   },
   loadingText: {
     color: "#fff",

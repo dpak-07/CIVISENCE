@@ -12,6 +12,7 @@ router.use(authMiddleware);
 router.post('/', uploadComplaintImage, complaintController.createComplaint);
 router.get('/', complaintController.getComplaints);
 router.get('/:id', complaintController.getComplaintById);
+router.delete('/:id', complaintController.deleteComplaint);
 router.patch(
   '/:id/status',
   allowRoles(ROLES.OFFICER, ROLES.ADMIN),
