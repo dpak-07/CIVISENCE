@@ -44,7 +44,9 @@ async def lifespan(app: FastAPI):
         await model_service.load()
         await mobilenet_service.load()
 
-        priority_engine = PriorityEngine(settings, mongodb.sensitive_locations)
+        assert mongodb.complaints is not None
+        assert mongodb.sensitive_locations is not None
+        priority_engine = PriorityEngine(mongodb.complaints, mongodb.sensitive_locations)
         ai_processor = AIProcessor(
             settings=settings,
             mongodb=mongodb,

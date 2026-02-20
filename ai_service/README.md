@@ -49,3 +49,29 @@ This service updates only:
 - `priority.aiProcessingStatus`
 
 No routing, status, workload, duplicate, or assignment fields are modified.
+
+## Auto Training From S3 Images
+
+You can continuously build a category dataset from complaint image URLs and auto-train a YOLO classification model when enough images are available.
+
+Run once:
+```powershell
+python scripts/auto_train_from_s3.py --min-images-per-class 50 --min-total-images 300
+```
+
+Run continuously every 30 minutes:
+```powershell
+python scripts/auto_train_from_s3.py --loop-seconds 1800 --min-images-per-class 50 --min-total-images 300
+```
+
+Run every Sunday at 12:00 AM (local system time):
+```powershell
+python scripts/auto_train_from_s3.py --weekly-sunday-midnight --min-images-per-class 50 --min-total-images 300
+```
+
+Important notes:
+- This script trains a **classification** model (`yolov8n-cls.pt`) using complaint category labels.
+- Complaint labels can be noisy; review/clean samples before using trained weights in production.
+- Training runs and state are stored under:
+  - `training_runs/`
+  - `training_data/train_state.json`
