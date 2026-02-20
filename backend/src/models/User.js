@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: null
     },
+    profilePhotoUrl: {
+      type: String,
+      trim: true,
+      default: null
+    },
     refreshTokenHash: {
       type: String,
       default: null,

@@ -1,6 +1,8 @@
 import { apiClient } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/config";
 import { sessionStore } from "@/lib/session";
 import { Platform } from "react-native";
+import { refreshSession } from "@/lib/services/authRefresh";
 
 export type ComplaintImage = {
   url: string;
@@ -11,6 +13,7 @@ export type ComplaintPriority = {
   score?: number;
   level?: string;
   reason?: string | null;
+  reasonSentence?: string | null;
   aiProcessed?: boolean;
   aiProcessingStatus?: string;
 };
@@ -87,36 +90,86 @@ const toBackendCategory = (category: string): string =>
 export const createComplaint = async (
   input: CreateComplaintInput
 ): Promise<CreateComplaintResult> => {
-  const formData = new FormData();
+  const buildFormData = async (): Promise<FormData> => {
+    const formData = new FormData();
 
-  formData.append("title", input.title);
-  formData.append("description", input.description);
-  formData.append("category", toBackendCategory(input.category));
-  formData.append("longitude", String(input.longitude));
-  formData.append("latitude", String(input.latitude));
+    formData.append("title", input.title);
+    formData.append("description", input.description);
+    formData.append("category", toBackendCategory(input.category));
+    formData.append("longitude", String(input.longitude));
+    formData.append("latitude", String(input.latitude));
 
-  if (input.imageUri) {
-    const fileName = buildImageName(input.imageUri);
-    const mimeType = buildMimeType(input.imageUri);
+    if (input.imageUri) {
+      const fileName = buildImageName(input.imageUri);
+      const mimeType = buildMimeType(input.imageUri);
 
-    if (Platform.OS === "web") {
-      const imageResponse = await fetch(input.imageUri);
-      const imageBlob = await imageResponse.blob();
-      const file = new File([imageBlob], fileName, {
-        type: imageBlob.type || mimeType,
-      });
-      formData.append("image", file);
-    } else {
-      const file = {
-        uri: input.imageUri,
-        name: fileName,
-        type: mimeType,
-      };
-      formData.append("image", file as unknown as Blob);
+      if (Platform.OS === "web") {
+        const imageResponse = await fetch(input.imageUri);
+        const imageBlob = await imageResponse.blob();
+        const file = new File([imageBlob], fileName, {
+          type: imageBlob.type || mimeType,
+        });
+        formData.append("image", file);
+      } else {
+        const file = {
+          uri: input.imageUri,
+          name: fileName,
+          type: mimeType,
+        };
+        formData.append("image", file as unknown as Blob);
+      }
     }
+
+    return formData;
+  };
+
+  if (Platform.OS === "android") {
+    const endpoint = `${API_BASE_URL}/complaints`;
+    const sendRequest = async (token?: string) => {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: await buildFormData(),
+        });
+        return response;
+      } catch {
+        throw new Error("Network Error");
+      }
+    };
+
+    let response = await sendRequest(sessionStore.getAccessToken() || undefined);
+    if (response.status === 401) {
+      const refreshed = await refreshSession();
+      if (refreshed?.accessToken) {
+        response = await sendRequest(refreshed.accessToken);
+      }
+    }
+
+    const payload = (await response.json().catch(() => null)) as Envelope<
+      CreateComplaintResult
+    > | null;
+
+    if (!response.ok) {
+      const message = payload?.message || `Request failed (${response.status})`;
+      throw new Error(message);
+    }
+
+    if (!payload?.data) {
+      throw new Error("Request failed");
+    }
+
+    return payload.data;
   }
 
-  const response = await apiClient.post<Envelope<CreateComplaintResult>>("/complaints", formData);
+  const formData = await buildFormData();
+  const response = await apiClient.post<Envelope<CreateComplaintResult>>(
+    "/complaints",
+    formData
+  );
 
   return response.data.data;
 };

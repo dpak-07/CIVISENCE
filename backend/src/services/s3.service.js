@@ -12,19 +12,18 @@ const MIME_EXTENSION_MAP = {
   'image/png': '.png'
 };
 
-const buildObjectKey = (filename, mimetype) => {
+const buildObjectKey = (prefix, filename, mimetype, seed) => {
   const now = new Date();
   const year = now.getUTCFullYear();
   const month = String(now.getUTCMonth() + 1).padStart(2, '0');
   const extension = path.extname(filename || '').toLowerCase() || MIME_EXTENSION_MAP[mimetype] || '';
   const safeExtension = extension.replace(/[^a-z0-9.]/gi, '');
+  const objectId = seed || uuidv4();
 
-  return `complaints/${year}/${month}/${uuidv4()}${safeExtension}`;
+  return `${prefix}/${year}/${month}/${objectId}${safeExtension}`;
 };
 
-const uploadToS3 = async (stream, filename, mimetype) => {
-  const key = buildObjectKey(filename, mimetype);
-
+const uploadStreamToS3 = async (stream, key, mimetype) => {
   try {
     const uploader = new Upload({
       client: s3Client,
@@ -68,6 +67,19 @@ const uploadToS3 = async (stream, filename, mimetype) => {
   }
 };
 
+const uploadToS3 = async (stream, filename, mimetype) => {
+  const key = buildObjectKey('complaints', filename, mimetype);
+  return uploadStreamToS3(stream, key, mimetype);
+};
+
+const uploadProfilePhotoToS3 = async (stream, filename, mimetype, userId) => {
+  const safeUserId = userId ? userId.replace(/[^a-z0-9_-]/gi, '') : '';
+  const seed = safeUserId ? `${safeUserId}-${uuidv4()}` : uuidv4();
+  const key = buildObjectKey('profile-photos', filename, mimetype, seed);
+  return uploadStreamToS3(stream, key, mimetype);
+};
+
 module.exports = {
-  uploadToS3
+  uploadToS3,
+  uploadProfilePhotoToS3
 };

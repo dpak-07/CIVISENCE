@@ -35,9 +35,11 @@ const detectDuplicate = async ({ reportedBy, category, coordinates }) => {
   }).lean();
 
   if (sameUserComplaint) {
+    const masterComplaint = await resolveMasterComplaint(sameUserComplaint);
     return {
       type: 'same_user_recent',
-      existingComplaint: sameUserComplaint
+      existingComplaint: sameUserComplaint,
+      masterComplaint
     };
   }
 

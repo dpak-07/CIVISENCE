@@ -77,6 +77,10 @@ const complaintSchema = new mongoose.Schema(
         type: String,
         default: null
       },
+      reasonSentence: {
+        type: String,
+        default: null
+      },
       aiProcessed: {
         type: Boolean,
         default: false

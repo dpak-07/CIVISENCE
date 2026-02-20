@@ -1,0 +1,67 @@
+import { apiClient } from "@/lib/api";
+import { AuthUser, sessionStore } from "@/lib/session";
+import { Platform } from "react-native";
+
+type Envelope<T> = {
+  success: boolean;
+  message?: string;
+  data: T;
+};
+
+const buildImageName = (uri: string): string => {
+  const lastSegment = uri.split("/").pop() || "profile.jpg";
+  return lastSegment.includes(".") ? lastSegment : `${lastSegment}.jpg`;
+};
+
+const buildMimeType = (uri: string): string => {
+  const lower = uri.toLowerCase();
+  if (lower.endsWith(".png")) {
+    return "image/png";
+  }
+  return "image/jpeg";
+};
+
+const updateSessionUser = async (user: AuthUser) => {
+  const session = sessionStore.get();
+  if (!session) {
+    return;
+  }
+  await sessionStore.set({
+    ...session,
+    user,
+  });
+};
+
+export const uploadProfilePhoto = async (uri: string): Promise<AuthUser> => {
+  const formData = new FormData();
+  const fileName = buildImageName(uri);
+  const mimeType = buildMimeType(uri);
+
+  if (Platform.OS === "web") {
+    const imageResponse = await fetch(uri);
+    const imageBlob = await imageResponse.blob();
+    const file = new File([imageBlob], fileName, {
+      type: imageBlob.type || mimeType,
+    });
+    formData.append("photo", file);
+  } else {
+    const file = {
+      uri,
+      name: fileName,
+      type: mimeType,
+    };
+    formData.append("photo", file as unknown as Blob);
+  }
+
+  const response = await apiClient.post<Envelope<AuthUser>>("/users/profile-photo", formData);
+  const user = response.data.data;
+  await updateSessionUser(user);
+  return user;
+};
+
+export const removeProfilePhoto = async (): Promise<AuthUser> => {
+  const response = await apiClient.delete<Envelope<AuthUser>>("/users/profile-photo");
+  const user = response.data.data;
+  await updateSessionUser(user);
+  return user;
+};

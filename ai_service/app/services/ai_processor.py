@@ -360,11 +360,16 @@ class AIProcessor:
                 priority_score=0.0,
                 priority_level="low",
                 reason="Duplicate complaint",
+                reason_sentence="Priority Low because this report is a duplicate of an existing complaint.",
             )
 
         reason = base_priority.reason
+        reason_sentence = base_priority.reason_sentence
         if image_context.semantic_fallback_used:
             reason = f"{reason}; Image semantic mismatch fallback applied ({image_context.semantic_note})"
+            reason_sentence = (
+                f"{reason_sentence} Image analysis suggests a mismatch with the category."
+            )
 
         return PriorityResult(
             base_score=base_priority.base_score,
@@ -376,6 +381,7 @@ class AIProcessor:
             priority_score=base_priority.priority_score,
             priority_level=base_priority.priority_level,
             reason=reason,
+            reason_sentence=reason_sentence,
         )
 
     def _build_ai_meta(self, duplicate_match: DuplicateMatch, image_context: ImageContext) -> dict[str, Any]:
@@ -428,6 +434,7 @@ class AIProcessor:
                     "priority.score": float(result.priority_score),
                     "priority.level": str(result.priority_level),
                     "priority.reason": str(result.reason),
+                    "priority.reasonSentence": str(result.reason_sentence),
                     "priority.aiProcessed": True,
                     "priority.aiProcessingStatus": "done",
                     "aiMeta": ai_meta,
@@ -444,6 +451,7 @@ class AIProcessor:
             {
                 "$set": {
                     "priority.reason": f"AI processing failed: {safe_message}",
+                    "priority.reasonSentence": "Priority could not be computed due to an AI processing error.",
                     "priority.aiProcessed": False,
                     "priority.aiProcessingStatus": "failed",
                     "aiMeta": {

@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { API_BASE_URL } from "@/lib/config";
 import { sessionStore } from "@/lib/session";
+import { refreshSession } from "@/lib/services/authRefresh";
 
 type ApiErrorBody = {
   success?: boolean;
@@ -14,6 +15,8 @@ export const apiClient = axios.create({
 });
 
 let isClearingUnauthorizedSession = false;
+let isRefreshingSession = false;
+let refreshPromise: Promise<ReturnType<typeof refreshSession>> | null = null;
 
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = sessionStore.getAccessToken();
@@ -26,7 +29,38 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorBody>) => {
-    if (error.response?.status === 401 && sessionStore.getAccessToken()) {
+    const status = error.response?.status;
+    const originalRequest = error.config as InternalAxiosRequestConfig | undefined;
+    const requestUrl = originalRequest?.url || "";
+    const isAuthRoute =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/refresh") ||
+      requestUrl.includes("/auth/logout");
+
+    if (status === 401 && sessionStore.getAccessToken() && !isAuthRoute) {
+      try {
+        if (!isRefreshingSession) {
+          isRefreshingSession = true;
+          refreshPromise = refreshSession();
+        }
+
+        const newSession = await refreshPromise;
+        if (newSession?.accessToken && originalRequest) {
+          originalRequest.headers = originalRequest.headers ?? {};
+          originalRequest.headers.Authorization = `Bearer ${newSession.accessToken}`;
+          isRefreshingSession = false;
+          return apiClient.request(originalRequest);
+        }
+      } catch {
+        // Fall through to clear session.
+      } finally {
+        isRefreshingSession = false;
+        refreshPromise = null;
+      }
+    }
+
+    if (status === 401 && sessionStore.getAccessToken()) {
       if (!isClearingUnauthorizedSession) {
         isClearingUnauthorizedSession = true;
         try {

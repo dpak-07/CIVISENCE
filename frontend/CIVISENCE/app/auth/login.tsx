@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +18,7 @@ import { getApiErrorMessage } from "@/lib/api";
 import { loginUser } from "@/lib/services/auth";
 
 export default function Login() {
+  const params = useLocalSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +38,8 @@ export default function Login() {
         password,
       });
 
-      router.replace("/");
+      const returnTo = typeof params?.returnTo === "string" ? params.returnTo : "/";
+      router.replace(returnTo);
     } catch (error) {
       Alert.alert("Login failed", getApiErrorMessage(error));
     } finally {

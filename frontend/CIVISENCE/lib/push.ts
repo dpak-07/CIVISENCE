@@ -1,7 +1,29 @@
 import { Platform } from "react-native";
-import * as Notifications from "expo-notifications";
 
-if (Platform.OS !== "web") {
+const canUseNotifications = Platform.OS !== "web";
+
+let notificationsReady = false;
+let notificationsModule: typeof import("expo-notifications") | null = null;
+
+export const initializeNotifications = async (): Promise<boolean> => {
+  if (!canUseNotifications) {
+    return false;
+  }
+
+  if (notificationsReady) {
+    return true;
+  }
+
+  if (!notificationsModule) {
+    const imported = await import("expo-notifications");
+    notificationsModule = imported;
+  }
+
+  const Notifications = notificationsModule;
+  if (!Notifications) {
+    return false;
+  }
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -11,18 +33,6 @@ if (Platform.OS !== "web") {
       shouldShowList: true,
     }),
   });
-}
-
-let notificationsReady = false;
-
-export const initializeNotifications = async (): Promise<boolean> => {
-  if (Platform.OS === "web") {
-    return false;
-  }
-
-  if (notificationsReady) {
-    return true;
-  }
 
   const permission = await Notifications.getPermissionsAsync();
   let status = permission.status;
@@ -55,6 +65,11 @@ export const sendLocalPush = async (title: string, body: string) => {
     return;
   }
 
+  if (!notificationsModule) {
+    return;
+  }
+
+  const Notifications = notificationsModule;
   await Notifications.scheduleNotificationAsync({
     content: {
       title,

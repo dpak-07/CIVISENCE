@@ -6,6 +6,11 @@ import { getPreferences } from "@/lib/preferences";
 import { sendLocalPush } from "@/lib/push";
 import { sessionStore } from "@/lib/session";
 import { getNotifications } from "@/lib/services/notifications";
+import {
+  flushQueuedComplaints,
+  initComplaintQueueSync,
+  stopComplaintQueueSync,
+} from "@/lib/services/complaintQueue";
 
 const NOTIFICATION_POLL_INTERVAL_MS = 30000;
 
@@ -36,6 +41,24 @@ export default function RootLayout() {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!sessionReady) {
+      return;
+    }
+
+    initComplaintQueueSync();
+    const unsubscribe = sessionStore.subscribe(() => {
+      if (sessionStore.getAccessToken()) {
+        void flushQueuedComplaints();
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      stopComplaintQueueSync();
+    };
+  }, [sessionReady]);
 
   useEffect(() => {
     if (!sessionReady) {

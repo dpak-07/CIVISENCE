@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -30,6 +29,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { getApiErrorMessage } from "@/lib/api";
 import { logoutUser } from "@/lib/services/auth";
 import { ComplaintRecord, getMyComplaints } from "@/lib/services/complaints";
+import { removeProfilePhoto, uploadProfilePhoto } from "@/lib/services/users";
 import { sessionStore } from "@/lib/session";
 
 const { width, height } = Dimensions.get("window");
@@ -129,12 +129,12 @@ const formatCoordinates = (complaint: ComplaintRecord): string => {
   return `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`;
 };
 
-const buildPhotoStorageKey = (userId: string) => `civisense.profile.photo.${userId}`;
-
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("stats");
   const [complaints, setComplaints] = useState<ComplaintRecord[]>([]);
-  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null);
+  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(
+    sessionStore.getUser()?.profilePhotoUrl ?? null
+  );
 
   const user = sessionStore.getUser();
   const accessToken = sessionStore.getAccessToken();
@@ -155,6 +155,14 @@ export default function Profile() {
     rotateAnim.value = withRepeat(withTiming(360, { duration: 20000 }), -1, false);
   }, [pulseAnim, rotateAnim, slideAnim]);
 
+  useEffect(() => {
+    const unsubscribe = sessionStore.subscribe(() => {
+      const nextUser = sessionStore.getUser();
+      setProfilePhotoUri(nextUser?.profilePhotoUrl ?? null);
+    });
+    return unsubscribe;
+  }, []);
+
   const loadProfileData = useCallback(async () => {
     if (!accessToken || !user?.id) {
       setComplaints([]);
@@ -163,12 +171,8 @@ export default function Profile() {
     }
 
     try {
-      const [records, savedPhoto] = await Promise.all([
-        getMyComplaints(),
-        AsyncStorage.getItem(buildPhotoStorageKey(user.id)),
-      ]);
+      const records = await getMyComplaints();
       setComplaints(records);
-      setProfilePhotoUri(savedPhoto);
     } catch (error) {
       Alert.alert("Profile error", getApiErrorMessage(error));
     }
@@ -268,7 +272,7 @@ export default function Profile() {
   }, [complaints]);
 
   const handlePickProfilePhoto = async () => {
-    if (!user?.id) {
+    if (!accessToken) {
       Alert.alert("Login required", "Please login first.");
       return;
     }
@@ -280,7 +284,7 @@ export default function Profile() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.85,
@@ -290,18 +294,25 @@ export default function Profile() {
       return;
     }
 
-    const newUri = result.assets[0].uri;
-    setProfilePhotoUri(newUri);
-    await AsyncStorage.setItem(buildPhotoStorageKey(user.id), newUri);
+    try {
+      const newUri = result.assets[0].uri;
+      const updatedUser = await uploadProfilePhoto(newUri);
+      setProfilePhotoUri(updatedUser.profilePhotoUrl ?? null);
+    } catch (error) {
+      Alert.alert("Profile photo failed", getApiErrorMessage(error));
+    }
   };
 
   const handleRemoveProfilePhoto = async () => {
-    if (!user?.id) {
+    if (!accessToken) {
       return;
     }
-
-    await AsyncStorage.removeItem(buildPhotoStorageKey(user.id));
-    setProfilePhotoUri(null);
+    try {
+      const updatedUser = await removeProfilePhoto();
+      setProfilePhotoUri(updatedUser.profilePhotoUrl ?? null);
+    } catch (error) {
+      Alert.alert("Profile photo failed", getApiErrorMessage(error));
+    }
   };
 
   const handleLikeReport = () => {
@@ -418,7 +429,7 @@ export default function Profile() {
           <BlurView intensity={40} style={styles.profileBlur}>
             <View style={styles.profileHeader}>
               <View style={styles.avatarContainer}>
-                <Image source={{ uri: avatarUri }} style={styles.avatar} />
+                <Image key={avatarUri} source={{ uri: avatarUri }} style={styles.avatar} />
                 <Animated.View style={[styles.onlineIndicator, pulseStyle]}>
                   <View style={styles.onlineDot} />
                 </Animated.View>

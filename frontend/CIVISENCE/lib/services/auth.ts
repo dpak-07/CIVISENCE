@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api";
 import { AuthSession, sessionStore } from "@/lib/session";
+import { Platform } from "react-native";
 
 type AuthEnvelope = {
   success: boolean;
@@ -16,6 +17,21 @@ type RegisterInput = {
   name: string;
   email: string;
   password: string;
+  profilePhotoUri?: string | null;
+};
+
+
+const buildImageName = (uri: string): string => {
+  const lastSegment = uri.split("/").pop() || "profile.jpg";
+  return lastSegment.includes(".") ? lastSegment : `${lastSegment}.jpg`;
+};
+
+const buildMimeType = (uri: string): string => {
+  const lower = uri.toLowerCase();
+  if (lower.endsWith(".png")) {
+    return "image/png";
+  }
+  return "image/jpeg";
 };
 
 const saveSession = (session: AuthSession) => {
@@ -30,7 +46,40 @@ export const loginUser = async (input: LoginInput): Promise<AuthSession> => {
 export const registerUser = async (
   input: RegisterInput
 ): Promise<AuthSession> => {
-  const response = await apiClient.post<AuthEnvelope>("/auth/register", input);
+  if (input.profilePhotoUri) {
+    const formData = new FormData();
+    formData.append("name", input.name);
+    formData.append("email", input.email);
+    formData.append("password", input.password);
+
+    const fileName = buildImageName(input.profilePhotoUri);
+    const mimeType = buildMimeType(input.profilePhotoUri);
+
+    if (Platform.OS === "web") {
+      const imageResponse = await fetch(input.profilePhotoUri);
+      const imageBlob = await imageResponse.blob();
+      const file = new File([imageBlob], fileName, {
+        type: imageBlob.type || mimeType,
+      });
+      formData.append("photo", file);
+    } else {
+      const file = {
+        uri: input.profilePhotoUri,
+        name: fileName,
+        type: mimeType,
+      };
+      formData.append("photo", file as unknown as Blob);
+    }
+
+    const response = await apiClient.post<AuthEnvelope>("/auth/register", formData);
+    return saveSession(response.data.data);
+  }
+
+  const response = await apiClient.post<AuthEnvelope>("/auth/register", {
+    name: input.name,
+    email: input.email,
+    password: input.password,
+  });
   return saveSession(response.data.data);
 };
 

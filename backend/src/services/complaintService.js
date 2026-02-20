@@ -110,15 +110,12 @@ const createComplaint = async (payload, reportedBy, options = {}) => {
   if (duplicateResult.type === 'same_user_recent') {
     throw new ApiError(
       StatusCodes.CONFLICT,
-      'Similar complaint already submitted by this user in the last 24 hours',
-      {
-        existingComplaintId: duplicateResult.existingComplaint._id
-      }
+      'Similar complaint already submitted by this user in the last 24 hours'
     );
   }
 
   if (duplicateResult.type === 'cross_user_duplicate') {
-    const masterComplaint = duplicateResult.masterComplaint;
+    const masterComplaint = duplicateResult.masterComplaint || duplicateResult.existingComplaint;
 
     const duplicateComplaint = await Complaint.create({
       title,

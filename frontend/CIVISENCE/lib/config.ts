@@ -90,8 +90,23 @@ const resolveEnvBaseUrl = (): string | null => {
   }
 
   const host = parseHost(envBaseUrl);
-  if (!host || isLocalhost(host)) {
+  if (!host) {
     return null;
+  }
+
+  if (isLocalhost(host)) {
+    const expoHost = resolveExpoHost();
+    if (!expoHost) {
+      return null;
+    }
+
+    try {
+      const url = new URL(envBaseUrl);
+      url.hostname = expoHost;
+      return url.toString();
+    } catch {
+      return null;
+    }
   }
 
   return envBaseUrl;

@@ -16,6 +16,7 @@ const sanitizeUser = (user) => ({
   email: user.email,
   role: user.role,
   isActive: user.isActive,
+  profilePhotoUrl: user.profilePhotoUrl || null,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt
 });
@@ -31,7 +32,7 @@ const issueTokens = async (user) => {
   return { accessToken, refreshToken };
 };
 
-const register = async ({ name, email, password }) => {
+const register = async ({ name, email, password, profilePhotoUrl }) => {
   if (!name || !email || !password) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Name, email and password are required');
   }
@@ -51,7 +52,8 @@ const register = async ({ name, email, password }) => {
     name,
     email,
     passwordHash,
-    role: 'citizen'
+    role: 'citizen',
+    profilePhotoUrl: profilePhotoUrl || null
   });
 
   const tokens = await issueTokens(createdUser);

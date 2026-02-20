@@ -8,11 +8,14 @@ import {
   Switch,
   Text,
   View,
+  Linking,
+  Platform,
 } from "react-native";
 import { router } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import { getApiErrorMessage } from "@/lib/api";
 import { getPreferences, savePreferences } from "@/lib/preferences";
 import { sessionStore } from "@/lib/session";
@@ -28,8 +31,15 @@ export default function Settings() {
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [notificationStatus, setNotificationStatus] = useState("unknown");
+  const [locationStatus, setLocationStatus] = useState("unknown");
+  const [notificationsModule, setNotificationsModule] = useState<
+    (typeof import("expo-notifications")) | null
+  >(null);
 
-  const user = sessionStore.getUser();
+  const canUseNotifications = Platform.OS !== "web";
+
+  const [user, setUser] = useState(sessionStore.getUser());
 
   const unreadCount = useMemo(
     () => notifications.filter((item) => !item.read).length,
@@ -42,6 +52,27 @@ export default function Settings() {
       const preferences = await getPreferences();
       setNotificationsEnabled(preferences.notificationsEnabled);
       setLocationEnabled(preferences.locationEnabled);
+
+      if (canUseNotifications) {
+        let module = notificationsModule;
+        if (!module) {
+          const imported = await import("expo-notifications");
+          module = imported;
+          setNotificationsModule(imported);
+        }
+        const notificationPermission = await module.getPermissionsAsync();
+        const status = notificationPermission.status || "unknown";
+        setNotificationStatus(status);
+        setNotificationsEnabled(preferences.notificationsEnabled && status === "granted");
+      } else {
+        setNotificationStatus("unavailable");
+        setNotificationsEnabled(false);
+      }
+
+      const locationPermission = await Location.getForegroundPermissionsAsync();
+      const locationStatusValue = locationPermission.status || "unknown";
+      setLocationStatus(locationStatusValue);
+      setLocationEnabled(preferences.locationEnabled && locationStatusValue === "granted");
 
       if (sessionStore.getAccessToken()) {
         const data = await getNotifications();
@@ -59,6 +90,13 @@ export default function Settings() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const unsubscribe = sessionStore.subscribe(() => {
+      setUser(sessionStore.getUser());
+    });
+    return unsubscribe;
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -81,13 +119,53 @@ export default function Settings() {
   };
 
   const toggleNotifications = async (value: boolean) => {
-    setNotificationsEnabled(value);
-    await persistPreferences(value, locationEnabled);
+    if (value) {
+      let module = notificationsModule;
+      if (!module) {
+        const imported = await import("expo-notifications");
+        module = imported;
+        setNotificationsModule(imported);
+      }
+      const permission = await module.requestPermissionsAsync();
+      setNotificationStatus(permission.status || "unknown");
+      const granted = permission.status === "granted";
+      setNotificationsEnabled(granted);
+      await persistPreferences(granted, locationEnabled);
+      if (!granted) {
+        Alert.alert("Permission denied", "Enable notifications from system settings.");
+      }
+      return;
+    }
+
+    setNotificationsEnabled(false);
+    await persistPreferences(false, locationEnabled);
+    Alert.alert(
+      "Disable in system settings",
+      "Notification permission can only be changed from the system settings.",
+      [{ text: "Open Settings", onPress: () => Linking.openSettings() }, { text: "Close" }]
+    );
   };
 
   const toggleLocation = async (value: boolean) => {
-    setLocationEnabled(value);
-    await persistPreferences(notificationsEnabled, value);
+    if (value) {
+      const permission = await Location.requestForegroundPermissionsAsync();
+      setLocationStatus(permission.status || "unknown");
+      const granted = permission.status === "granted";
+      setLocationEnabled(granted);
+      await persistPreferences(notificationsEnabled, granted);
+      if (!granted) {
+        Alert.alert("Permission denied", "Enable location access from system settings.");
+      }
+      return;
+    }
+
+    setLocationEnabled(false);
+    await persistPreferences(notificationsEnabled, false);
+    Alert.alert(
+      "Disable in system settings",
+      "Location permission can only be changed from the system settings.",
+      [{ text: "Open Settings", onPress: () => Linking.openSettings() }, { text: "Close" }]
+    );
   };
 
   const handleMarkNotificationRead = async (notificationId: string) => {
@@ -109,6 +187,21 @@ export default function Settings() {
       router.replace("/auth/login");
     } catch (error) {
       Alert.alert("Logout failed", getApiErrorMessage(error));
+    }
+  };
+
+  const toStatusLabel = (status: string) => {
+    switch (status) {
+      case "granted":
+        return "Granted";
+      case "denied":
+        return "Denied";
+      case "undetermined":
+        return "Not requested";
+      case "unavailable":
+        return "Unavailable";
+      default:
+        return "Unknown";
     }
   };
 
@@ -151,7 +244,7 @@ export default function Settings() {
             <View>
               <Text style={styles.settingLabel}>Push Notifications</Text>
               <Text style={styles.settingDesc}>
-                Local push from backend notifications (unread: {unreadCount})
+                System: {toStatusLabel(notificationStatus)} - Unread: {unreadCount}
               </Text>
             </View>
             <Switch
@@ -159,13 +252,16 @@ export default function Settings() {
               onValueChange={toggleNotifications}
               trackColor={{ false: "#dbeafe", true: "#86efac" }}
               thumbColor={notificationsEnabled ? "#22c55e" : "#9ca3af"}
+              disabled={!canUseNotifications}
             />
           </View>
 
           <View style={styles.settingItem}>
             <View>
               <Text style={styles.settingLabel}>Location Services</Text>
-              <Text style={styles.settingDesc}>Allow location access in report flow</Text>
+              <Text style={styles.settingDesc}>
+                System: {toStatusLabel(locationStatus)} - Used in report flow
+              </Text>
             </View>
             <Switch
               value={locationEnabled}

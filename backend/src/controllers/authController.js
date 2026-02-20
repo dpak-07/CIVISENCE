@@ -3,7 +3,10 @@ const asyncHandler = require('../utils/asyncHandler');
 const authService = require('../services/authService');
 
 const register = asyncHandler(async (req, res) => {
-  const result = await authService.register(req.body);
+  const result = await authService.register({
+    ...req.body,
+    profilePhotoUrl: req.uploadedProfilePhotoUrl || null
+  });
   res.status(StatusCodes.CREATED).json({ success: true, data: result });
 });
 

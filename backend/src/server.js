@@ -12,8 +12,8 @@ const startServer = async () => {
   await startComplaintAiWatcher();
 
   server = http.createServer(app);
-  server.listen(env.port, () => {
-    logger.info(`Server listening on port ${env.port}`);
+  server.listen(env.port, '0.0.0.0', () => {
+    logger.info(`Server listening on http://0.0.0.0:${env.port}`);
   });
 };
 

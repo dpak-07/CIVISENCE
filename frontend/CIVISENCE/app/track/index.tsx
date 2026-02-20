@@ -177,7 +177,10 @@ const toViewModel = (complaint: ComplaintRecord): ComplaintCardModel => ({
   statusLabel: toStatusLabel(complaint.status),
   statusRaw: complaint.status,
   priorityLabel: toPriorityLabel(complaint.priority?.level),
-  priorityReason: complaint.priority?.reason || "No priority explanation yet",
+  priorityReason:
+    complaint.priority?.reasonSentence ||
+    complaint.priority?.reason ||
+    "No priority explanation yet",
   dateLabel: formatDate(complaint.createdAt),
   locationLabel: toLocationLabel(complaint),
   progress: toProgress(complaint.status),

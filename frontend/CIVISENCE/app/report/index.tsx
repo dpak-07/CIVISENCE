@@ -14,13 +14,14 @@ import {
   Platform,
   Modal,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { getApiErrorMessage } from "@/lib/api";
 import { sessionStore } from "@/lib/session";
-import { createComplaint } from "@/lib/services/complaints";
+import { submitComplaintOrQueue } from "@/lib/services/complaintQueue";
 
 const { width } = Dimensions.get("window");
 
@@ -33,6 +34,8 @@ const CATEGORIES = [
   { id: 6, name: "Other", icon: "help-circle", color: "#6B7280", bg: "#F3F4F6" },
 ];
 
+const DRAFT_STORAGE_KEY = "civisense.report.draft.v1";
+
 type Coordinates = {
   latitude: number;
   longitude: number;
@@ -41,51 +44,120 @@ type Coordinates = {
 const formatCoordinates = (latitude: number, longitude: number): string =>
   `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
 
-const reverseGeocodeToArea = async (
+const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+const formatAddressParts = (parts: Array<string | null | undefined>): string | null => {
+  const normalized = parts
+    .filter((part): part is string => Boolean(part && part.trim()))
+    .map((part) => part.trim());
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  const deduped = Array.from(new Set(normalized));
+  return deduped.join(", ");
+};
+
+const reverseGeocodeWithExpo = async (
   latitude: number,
   longitude: number
 ): Promise<string | null> => {
   try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`
-    );
-
-    if (!response.ok) {
+    const results = await Location.reverseGeocodeAsync({ latitude, longitude });
+    if (!results || results.length === 0) {
       return null;
     }
 
-    const data = (await response.json()) as {
-      address?: Record<string, string | undefined>;
-      display_name?: string;
-    };
-
-    const address = data.address ?? {};
-    const areaParts = [
-      address.suburb,
-      address.neighbourhood,
-      address.city_district,
-      address.city || address.town || address.village,
-      address.state,
-    ]
-      .filter((part): part is string => Boolean(part && part.trim()))
-      .map((part) => part.trim());
-
-    const deduped = Array.from(new Set(areaParts));
-    if (deduped.length > 0) {
-      return deduped.join(", ");
-    }
-
-    if (typeof data.display_name === "string" && data.display_name.trim()) {
-      return data.display_name.trim();
-    }
-
-    return null;
+    const address = results[0];
+    return (
+      formatAddressParts([
+        address.name,
+        address.street,
+        address.district,
+        address.subregion,
+        address.city,
+        address.region,
+        address.country,
+      ]) ?? null
+    );
   } catch {
     return null;
   }
 };
 
+const reverseGeocodeWithNominatim = async (
+  latitude: number,
+  longitude: number
+): Promise<string | null> => {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`;
+  const headers = {
+    "User-Agent": "CiviSense/1.0",
+    "Accept-Language": "en",
+  };
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const response = await fetch(url, { headers });
+
+      if (response.status === 429 || response.status >= 500) {
+        await sleep(700);
+        continue;
+      }
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = (await response.json()) as {
+        address?: Record<string, string | undefined>;
+        display_name?: string;
+      };
+
+      const address = data.address ?? {};
+      const area = formatAddressParts([
+        address.suburb,
+        address.neighbourhood,
+        address.city_district,
+        address.city || address.town || address.village,
+        address.state,
+      ]);
+
+      if (area) {
+        return area;
+      }
+
+      if (typeof data.display_name === "string" && data.display_name.trim()) {
+        return data.display_name.trim();
+      }
+
+      return null;
+    } catch {
+      await sleep(500);
+    }
+  }
+
+  return null;
+};
+
+const reverseGeocodeToArea = async (
+  latitude: number,
+  longitude: number
+): Promise<string | null> => {
+  const expoResult = await reverseGeocodeWithExpo(latitude, longitude);
+  if (expoResult) {
+    return expoResult;
+  }
+
+  return reverseGeocodeWithNominatim(latitude, longitude);
+};
+
 export default function ReportIssue() {
+  const log = (...args: unknown[]) => {
+    console.log("[Report]", ...args);
+  };
+
   const params = useLocalSearchParams();
   const scrollViewRef = useRef(null);
   
@@ -98,25 +170,93 @@ export default function ReportIssue() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [queuedSubmission, setQueuedSubmission] = useState(false);
+
+  const loadDraft = async () => {
+    try {
+      const raw = await AsyncStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+      const draft = JSON.parse(raw) as {
+        category?: string;
+        description?: string;
+        location?: string;
+        coordinates?: Coordinates | null;
+        image?: string | null;
+      };
+
+      if (!category && draft.category) {
+        setCategory(draft.category);
+      }
+      if (!description && draft.description) {
+        setDescription(draft.description);
+      }
+      if (!location && draft.location) {
+        setLocation(draft.location);
+      }
+      if (!coordinates && draft.coordinates) {
+        setCoordinates(draft.coordinates);
+      }
+      if (!image && draft.image) {
+        setImage(draft.image);
+      }
+    } catch {
+      // Ignore draft restore errors.
+    }
+  };
+
+  const saveDraft = async () => {
+    try {
+      await AsyncStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          category,
+          description,
+          location,
+          coordinates,
+          image,
+        })
+      );
+    } catch {
+      // Ignore draft save errors.
+    }
+  };
+
+  const clearDraft = async () => {
+    try {
+      await AsyncStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // Ignore draft remove errors.
+    }
+  };
 
   // Update image when params change
   useEffect(() => {
     const photoParam = params?.photo;
     if (typeof photoParam === "string" && photoParam.length > 0) {
+      log("Photo param received", { uri: photoParam });
       setImage(photoParam);
     }
   }, [params?.photo, params?.captureTs]);
 
   useEffect(() => {
+    void loadDraft();
+  }, []);
+
+  useEffect(() => {
     if (image && !location) {
+      log("Image set, fetching location");
       getCurrentLocation();
     }
   }, [image]);
 
   const getCurrentLocation = async () => {
+    log("Requesting location permission");
     setLocationLoading(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
+      log("Location permission status", status);
       if (status !== "granted") {
         Alert.alert("Permission Denied", "Location permission is required");
         setLocationLoading(false);
@@ -125,9 +265,11 @@ export default function ReportIssue() {
 
       const userLocation = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = userLocation.coords;
+      log("Got GPS coordinates", { latitude, longitude });
       setCoordinates({ latitude, longitude });
 
       const area = await reverseGeocodeToArea(latitude, longitude);
+      log("Reverse geocode result", area);
       setLocation(area || formatCoordinates(latitude, longitude));
     } catch (error) {
       console.error("Location Error:", error);
@@ -138,10 +280,12 @@ export default function ReportIssue() {
   };
 
   const handlePhotoCapture = () => {
+    log("Open camera");
     router.push("/report/camera");
   };
 
   const handleRemovePhoto = () => {
+    log("Photo removed");
     setImage(null);
   };
 
@@ -149,14 +293,17 @@ export default function ReportIssue() {
     const accessToken = sessionStore.getAccessToken();
 
     if (accessToken) {
+      log("Auth OK");
       return true;
     }
 
+    log("Auth missing");
+    void saveDraft();
     Alert.alert("Login required", "Please sign in before submitting a complaint.", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Sign In",
-        onPress: () => router.push("/auth/login"),
+        onPress: () => router.push({ pathname: "/auth/login", params: { returnTo: "/report" } }),
       },
     ]);
 
@@ -172,11 +319,13 @@ export default function ReportIssue() {
   };
 
   const handleConfirmSubmit = async () => {
+    log("Confirm submit pressed");
     if (!ensureAuthenticated()) {
       return;
     }
 
     if (!coordinates) {
+      log("Submit blocked: no coordinates");
       Alert.alert("Missing location", "Please capture your location before submitting.");
       return;
     }
@@ -190,17 +339,26 @@ export default function ReportIssue() {
           ? description.trim()
           : `${category} issue reported via mobile app.`;
 
-      await createComplaint({
+      const payload = {
         title: buildComplaintTitle(category, location),
         description: normalizedDescription,
         category,
         longitude: coordinates.longitude,
         latitude: coordinates.latitude,
         imageUri: image,
+      };
+      log("Submitting complaint", payload);
+
+      const result = await submitComplaintOrQueue({
+        ...payload,
       });
 
+      log("Submit result", result);
+      setQueuedSubmission(result.queued);
       setShowSuccess(true);
+      await clearDraft();
     } catch (error) {
+      log("Submit failed", getApiErrorMessage(error));
       Alert.alert("Submission failed", getApiErrorMessage(error));
     } finally {
       setLoading(false);
@@ -208,31 +366,38 @@ export default function ReportIssue() {
   };
 
   const handleSubmit = () => {
+    log("Submit pressed");
     if (!ensureAuthenticated()) {
       return;
     }
 
     if (!image) {
+      log("Validation failed: missing photo");
       Alert.alert("Required", "Please take a photo of the issue");
       return;
     }
     if (!category) {
+      log("Validation failed: missing category");
       Alert.alert("Required", "Please select a category");
       return;
     }
     if (!location) {
+      log("Validation failed: missing location");
       Alert.alert("Required", "Please get your location");
       return;
     }
     if (!coordinates) {
+      log("Validation failed: missing coordinates");
       Alert.alert("Required", "Location coordinates are missing. Tap refresh location.");
       return;
     }
     if (description.trim().length > 0 && description.trim().length < 10) {
+      log("Validation failed: description too short");
       Alert.alert("Invalid", "Description should be at least 10 characters or leave it empty");
       return;
     }
 
+    log("Validation OK, opening confirmation");
     setShowConfirmation(true);
   };
 
@@ -584,9 +749,13 @@ export default function ReportIssue() {
               <Ionicons name="checkmark-circle" size={100} color="#10B981" />
             </View>
 
-            <Text style={styles.successTitle}>Issue Reported!</Text>
+            <Text style={styles.successTitle}>
+              {queuedSubmission ? "Queued for upload" : "Issue Reported!"}
+            </Text>
             <Text style={styles.successMessage}>
-              Your complaint has been successfully submitted to the nearest municipality. You can track its progress anytime.
+              {queuedSubmission
+                ? "No internet detected. Your report is saved on this device and will be sent automatically when you are back online."
+                : "Your complaint has been successfully submitted to the nearest municipality. You can track its progress anytime."}
             </Text>
 
             {/* Action Buttons */}
@@ -595,6 +764,7 @@ export default function ReportIssue() {
                 style={styles.successBtnSecondary}
                 onPress={() => {
                   setShowSuccess(false);
+                  setQueuedSubmission(false);
                   setCategory("");
                   setDescription("");
                   setLocation("");
@@ -611,6 +781,7 @@ export default function ReportIssue() {
                 style={styles.successBtnPrimaryWrapper}
                 onPress={() => {
                   setShowSuccess(false);
+                  setQueuedSubmission(false);
                   setCategory("");
                   setDescription("");
                   setLocation("");

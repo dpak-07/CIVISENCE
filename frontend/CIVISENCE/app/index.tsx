@@ -159,12 +159,19 @@ export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [myReportsCount, setMyReportsCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const user = sessionStore.getUser();
+  const [user, setUser] = useState(sessionStore.getUser());
 
   useEffect(() => {
     if (!sessionStore.getAccessToken()) {
       router.replace("/auth/login");
     }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = sessionStore.subscribe(() => {
+      setUser(sessionStore.getUser());
+    });
+    return unsubscribe;
   }, []);
 
   useFocusEffect(
@@ -282,7 +289,10 @@ export default function Home() {
           </Pressable>
           <Pressable onPress={() => router.push("/profile")}>
             <Image
-              source={{ uri: "https://i.pravatar.cc/150?u=user" }}
+              key={user?.profilePhotoUrl || "default-avatar"}
+              source={{
+                uri: user?.profilePhotoUrl || "https://i.pravatar.cc/150?u=user",
+              }}
               style={[styles.profilePic, isDarkMode && styles.profilePicDark]}
             />
           </Pressable>

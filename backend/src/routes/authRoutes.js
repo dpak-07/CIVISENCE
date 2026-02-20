@@ -1,9 +1,10 @@
 ﻿const express = require('express');
 const authController = require('../controllers/authController');
+const uploadProfilePhoto = require('../middlewares/uploadProfilePhoto.middleware');
 
 const router = express.Router();
 
-router.post('/register', authController.register);
+router.post('/register', uploadProfilePhoto, authController.register);
 router.post('/login', authController.login);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);

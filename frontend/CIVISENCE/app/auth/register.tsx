@@ -9,11 +9,13 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { getApiErrorMessage } from "@/lib/api";
 import { registerUser } from "@/lib/services/auth";
 
@@ -24,6 +26,35 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null);
+
+  const handlePickProfilePhoto = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Permission needed", "Allow photo access to add a profile picture.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+
+    if (result.canceled) {
+      return;
+    }
+
+    const uri = result.assets?.[0]?.uri;
+    if (uri) {
+      setProfilePhotoUri(uri);
+    }
+  };
+
+  const handleRemoveProfilePhoto = () => {
+    setProfilePhotoUri(null);
+  };
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -48,6 +79,7 @@ export default function Register() {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
+        profilePhotoUri,
       });
 
       router.replace("/");
@@ -75,6 +107,24 @@ export default function Register() {
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(100).duration(700)} style={styles.form}>
+          <View style={styles.avatarSection}>
+            <Pressable style={styles.avatarButton} onPress={handlePickProfilePhoto}>
+              {profilePhotoUri ? (
+                <Image source={{ uri: profilePhotoUri }} style={styles.avatarImage} />
+              ) : (
+                <Ionicons name="camera-outline" size={28} color="#2563eb" />
+              )}
+              <View style={styles.avatarBadge}>
+                <Ionicons name="add" size={16} color="#fff" />
+              </View>
+            </Pressable>
+            <Text style={styles.avatarHint}>Add a profile photo</Text>
+            {profilePhotoUri ? (
+              <Pressable onPress={handleRemoveProfilePhoto}>
+                <Text style={styles.avatarRemove}>Remove photo</Text>
+              </Pressable>
+            ) : null}
+          </View>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Full Name</Text>
             <View style={styles.inputWrapper}>
@@ -205,6 +255,48 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 20,
+  },
+  avatarSection: {
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  avatarButton: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderWidth: 2,
+    borderColor: "#dbeafe",
+  },
+  avatarImage: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+  },
+  avatarBadge: {
+    position: "absolute",
+    right: -2,
+    bottom: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "#2563eb",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  avatarHint: {
+    fontSize: 13,
+    color: "#475569",
+  },
+  avatarRemove: {
+    fontSize: 12,
+    color: "#ef4444",
+    fontWeight: "600",
   },
   inputGroup: {
     gap: 8,

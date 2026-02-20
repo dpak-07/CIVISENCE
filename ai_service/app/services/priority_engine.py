@@ -21,6 +21,7 @@ class PriorityResult:
     priority_score: float
     priority_level: str
     reason: str
+    reason_sentence: str
 
 
 class PriorityEngine:
@@ -60,6 +61,14 @@ class PriorityEngine:
             f"Cluster boost={cluster_result.cluster_boost:.2f} (count={cluster_result.nearby_count})"
         )
 
+        reason_sentence = self._build_reason_sentence(
+            level=level,
+            text_result=text_result,
+            geo_result=geo_result,
+            cluster_count=cluster_result.nearby_count,
+            time_score=time_score,
+        )
+
         return PriorityResult(
             base_score=text_result.base_score,
             geo_multiplier=geo_result.multiplier,
@@ -70,6 +79,7 @@ class PriorityEngine:
             priority_score=final_score,
             priority_level=level,
             reason=reason,
+            reason_sentence=reason_sentence,
         )
 
     def _time_score(self, created_at: Any) -> float:
@@ -113,3 +123,42 @@ class PriorityEngine:
         if score <= 6.0:
             return "medium"
         return "high"
+
+    @staticmethod
+    def _build_reason_sentence(
+        level: str,
+        text_result: Any,
+        geo_result: Any,
+        cluster_count: int,
+        time_score: float,
+    ) -> str:
+        level_label = level.capitalize()
+
+        if getattr(text_result, "high_count", 0) > 0:
+            text_phrase = "urgent wording was detected"
+        elif getattr(text_result, "medium_count", 0) > 0:
+            text_phrase = "moderate severity wording was detected"
+        elif getattr(text_result, "normal_count", 0) > 0:
+            text_phrase = "issue keywords were detected"
+        else:
+            text_phrase = "no strong severity keywords were detected"
+
+        matched_type = getattr(geo_result, "matched_type", "none")
+        if matched_type and matched_type != "none":
+            geo_phrase = f"it is near a {matched_type}"
+        else:
+            geo_phrase = "it is not near a sensitive location"
+
+        if cluster_count >= 3:
+            cluster_phrase = f"there are {cluster_count} similar reports nearby"
+        elif cluster_count > 0:
+            cluster_phrase = f"there is {cluster_count} similar report nearby"
+        else:
+            cluster_phrase = "there are no nearby similar reports"
+
+        time_phrase = "it has been pending for a while" if time_score >= 1.5 else "it is recent"
+
+        return (
+            f"Priority {level_label} because {text_phrase}, {geo_phrase}, "
+            f"{cluster_phrase}, and {time_phrase}."
+        )

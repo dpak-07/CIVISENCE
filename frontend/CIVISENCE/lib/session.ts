@@ -6,6 +6,7 @@ export type AuthUser = {
   email: string;
   role: string;
   isActive: boolean;
+  profilePhotoUrl?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
