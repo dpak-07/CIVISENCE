@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL, getFallbackApiBaseUrl } from "@/lib/config";
 import { sessionStore } from "@/lib/session";
 import { refreshSession } from "@/lib/services/authRefresh";
 
@@ -7,6 +7,23 @@ type ApiErrorBody = {
   success?: boolean;
   message?: string;
   details?: unknown;
+};
+
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retriedWithFallback?: boolean;
+};
+
+const isNetworkLikeAxiosError = (error: AxiosError<ApiErrorBody>): boolean => {
+  if (!error.response) {
+    return true;
+  }
+
+  const message = (error.message || "").toLowerCase();
+  return (
+    error.code === "ECONNABORTED" ||
+    message.includes("network error") ||
+    message.includes("timeout")
+  );
 };
 
 export const apiClient = axios.create({
@@ -30,13 +47,29 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorBody>) => {
     const status = error.response?.status;
-    const originalRequest = error.config as InternalAxiosRequestConfig | undefined;
+    const originalRequest = error.config as RetryableRequestConfig | undefined;
     const requestUrl = originalRequest?.url || "";
     const isAuthRoute =
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/refresh") ||
       requestUrl.includes("/auth/logout");
+
+    if (
+      originalRequest &&
+      !originalRequest._retriedWithFallback &&
+      isNetworkLikeAxiosError(error)
+    ) {
+      const currentBaseUrl =
+        originalRequest.baseURL ?? apiClient.defaults.baseURL ?? API_BASE_URL;
+      const fallbackBaseUrl = getFallbackApiBaseUrl(currentBaseUrl);
+      if (fallbackBaseUrl) {
+        originalRequest._retriedWithFallback = true;
+        originalRequest.baseURL = fallbackBaseUrl;
+        apiClient.defaults.baseURL = fallbackBaseUrl;
+        return apiClient.request(originalRequest);
+      }
+    }
 
     if (status === 401 && sessionStore.getAccessToken() && !isAuthRoute) {
       try {

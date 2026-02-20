@@ -1,56 +1,313 @@
-import React from "react";
-import { FaRocket, FaBrain, FaTools } from "react-icons/fa";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  FaCheckCircle,
+  FaClock,
+  FaBrain,
+  FaCity,
+  FaRocket,
+  FaTools,
+} from "react-icons/fa";
+import "./App.css";
+
+const COUNTDOWN_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+const COUNTDOWN_STORAGE_KEY = "civisense_coming_soon_launch_at";
+
+const getLaunchTarget = () => {
+  const now = Date.now();
+
+  if (typeof window === "undefined") {
+    return now + COUNTDOWN_DURATION_MS;
+  }
+
+  const saved = Number(window.localStorage.getItem(COUNTDOWN_STORAGE_KEY));
+  if (Number.isFinite(saved) && saved > now) {
+    return saved;
+  }
+
+  const launchAt = now + COUNTDOWN_DURATION_MS;
+  window.localStorage.setItem(COUNTDOWN_STORAGE_KEY, String(launchAt));
+  return launchAt;
+};
+
+const getCountdownParts = (remainingMs) => {
+  const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return { days, hours, minutes, seconds };
+};
+
+function TypewriterText({
+  text,
+  startDelay = 0,
+  speed = 28,
+  showCursor = false,
+}) {
+  const [visible, setVisible] = useState("");
+
+  useEffect(() => {
+    let typeTimer;
+    let startTimer;
+    let index = 0;
+
+    const typeNext = () => {
+      if (index <= text.length) {
+        setVisible(text.slice(0, index));
+        index += 1;
+        typeTimer = setTimeout(typeNext, speed);
+      }
+    };
+
+    startTimer = setTimeout(typeNext, startDelay);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(typeTimer);
+    };
+  }, [text, startDelay, speed]);
+
+  return (
+    <>
+      <span>{visible}</span>
+      {showCursor && visible.length < text.length ? (
+        <span className="civ-cursor" aria-hidden="true">
+          |
+        </span>
+      ) : null}
+    </>
+  );
+}
 
 function App() {
+  const [launchTarget] = useState(getLaunchTarget);
+  const [remainingMs, setRemainingMs] = useState(() =>
+    Math.max(0, launchTarget - Date.now())
+  );
+
+  useEffect(() => {
+    const tick = () => {
+      setRemainingMs(Math.max(0, launchTarget - Date.now()));
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+
+    return () => clearInterval(interval);
+  }, [launchTarget]);
+
+  const countdown = getCountdownParts(remainingMs);
+
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-black overflow-hidden text-white">
+    <main className="civ-shell">
+      <div className="civ-grid" />
+      <div className="civ-noise" />
+      <motion.div
+        className="civ-orb civ-orb-a"
+        animate={{ x: [0, 50, -20, 0], y: [0, -30, 20, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="civ-orb civ-orb-b"
+        animate={{ x: [0, -60, 30, 0], y: [0, 25, -35, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-      {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-900 to-black opacity-30 blur-3xl animate-pulse"></div>
+      <section className="civ-wrap civ-wrap-coming">
+        <motion.p
+          className="civ-chip"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FaCity />
+          <TypewriterText
+            text="CiviSense Control Layer"
+            startDelay={80}
+            speed={22}
+          />
+        </motion.p>
 
-      {/* Floating Glow Circles */}
-      <div className="absolute w-72 h-72 bg-cyan-400 rounded-full blur-3xl opacity-20 animate-bounce top-10 left-10"></div>
-      <div className="absolute w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 animate-ping bottom-10 right-10"></div>
+        <motion.h1
+          className="civ-title civ-title-coming"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1 }}
+        >
+          <TypewriterText
+            text="Coming Soon"
+            startDelay={220}
+            speed={80}
+            showCursor
+          />
+        </motion.h1>
 
-      {/* Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        <motion.p
+          className="civ-subtitle"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+        >
+          <TypewriterText
+            text="We are preparing the next phase of CiviSense with stronger AI routing, better municipal workflows, and a faster complaint experience."
+            startDelay={520}
+            speed={18}
+          />
+        </motion.p>
 
-      {/* Content */}
-      <div className="relative z-10 text-center px-6">
+        <motion.div
+          className="civ-timer-wrap"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+        >
+          <p className="civ-timer-label">Launch Countdown (7 Days)</p>
+          <div className="civ-timer-grid">
+            <div className="civ-timer-box">
+              <strong>{String(countdown.days).padStart(2, "0")}</strong>
+              <span>Days</span>
+            </div>
+            <div className="civ-timer-box">
+              <strong>{String(countdown.hours).padStart(2, "0")}</strong>
+              <span>Hours</span>
+            </div>
+            <div className="civ-timer-box">
+              <strong>{String(countdown.minutes).padStart(2, "0")}</strong>
+              <span>Minutes</span>
+            </div>
+            <div className="civ-timer-box">
+              <strong>{String(countdown.seconds).padStart(2, "0")}</strong>
+              <span>Seconds</span>
+            </div>
+          </div>
+        </motion.div>
 
-        {/* Title */}
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-widest flex items-center justify-center gap-3 animate-pulse">
-          <FaRocket className="text-cyan-400 animate-bounce" />
-          Civi<span className="text-cyan-400">Sense</span>
-        </h1>
+        <motion.div
+          className="civ-status-row"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+        >
+          <span className="civ-badge">
+            <FaRocket />
+            <TypewriterText
+              text="Launching public preview soon"
+              startDelay={1150}
+              speed={20}
+            />
+          </span>
+          <span className="civ-badge">
+            <FaClock />
+            <TypewriterText
+              text="Real-time system tuning in progress"
+              startDelay={1450}
+              speed={20}
+            />
+          </span>
+        </motion.div>
 
-        {/* Subtitle */}
-        <p className="mt-6 text-xl md:text-2xl text-gray-300 flex items-center justify-center gap-2 animate-fadeIn">
-          <FaBrain className="text-blue-400 animate-spin-slow" />
-          AI Civic Intelligence Launching Soon
-        </p>
+        <motion.div
+          className="civ-cards civ-cards-coming"
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.45 }}
+        >
+          <motion.article
+            className="civ-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
+            whileHover={{ y: -6, scale: 1.01 }}
+          >
+            <span className="civ-card-icon">
+              <FaTools />
+            </span>
+            <h2>
+              <TypewriterText
+                text="Platform Hardening"
+                startDelay={1850}
+                speed={28}
+              />
+            </h2>
+            <p>
+              <TypewriterText
+                text="Backend and AI services are being optimized for production load."
+                startDelay={2050}
+                speed={16}
+              />
+            </p>
+          </motion.article>
 
-        {/* Description */}
-        <p className="mt-4 text-gray-400 max-w-xl mx-auto">
-          Smart automation. Real-time civic reporting.
-          <br />
-          Advanced backend stress testing in progress.
-        </p>
+          <motion.article
+            className="civ-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.65 }}
+            whileHover={{ y: -6, scale: 1.01 }}
+          >
+            <span className="civ-card-icon">
+              <FaBrain />
+            </span>
+            <h2>
+              <TypewriterText
+                text="AI Decision Layer"
+                startDelay={2450}
+                speed={28}
+              />
+            </h2>
+            <p>
+              <TypewriterText
+                text="Priority engine and quality checks are under active validation."
+                startDelay={2650}
+                speed={16}
+              />
+            </p>
+          </motion.article>
 
-        {/* Loader */}
-        <div className="flex justify-center mt-10">
-          <AiOutlineLoading3Quarters className="text-5xl text-cyan-400 animate-spin" />
-        </div>
+          <motion.article
+            className="civ-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.75 }}
+            whileHover={{ y: -6, scale: 1.01 }}
+          >
+            <span className="civ-card-icon">
+              <FaCheckCircle />
+            </span>
+            <h2>
+              <TypewriterText
+                text="Release Readiness"
+                startDelay={3050}
+                speed={28}
+              />
+            </h2>
+            <p>
+              <TypewriterText
+                text="Final integrations are in progress before wider municipal rollout."
+                startDelay={3250}
+                speed={16}
+              />
+            </p>
+          </motion.article>
+        </motion.div>
 
-        {/* Status */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500 tracking-widest animate-pulse">
-          <FaTools className="text-gray-400" />
-          UNDER MASSIVE DEVELOPMENT • STAY TUNED
-        </div>
-
-      </div>
-    </div>
+        <motion.p
+          className="civ-credit"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
+        >
+          <TypewriterText
+            text="Designed by Deepak and Priya Dharshini"
+            startDelay={3650}
+            speed={34}
+            showCursor
+          />
+        </motion.p>
+      </section>
+    </main>
   );
 }
 

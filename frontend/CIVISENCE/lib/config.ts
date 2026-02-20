@@ -2,6 +2,13 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 const envBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+const PROD_API_BASE_URLS = [
+  "http://civisence.duckdns.org/api",
+  "http://43.204.139.225/api",
+];
+
+const normalizeBaseUrl = (value: string): string =>
+  value.trim().replace(/\/+$/, "");
 
 const parseHost = (value: string | null | undefined): string | null => {
   if (!value) {
@@ -129,5 +136,49 @@ const resolveDefaultBaseUrl = (): string => {
   return "http://127.0.0.1:5000/api";
 };
 
-export const API_BASE_URL =
-  resolveEnvBaseUrl() ?? resolveDefaultBaseUrl();
+const resolveApiBaseUrls = (): string[] => {
+  const resolvedEnvBaseUrl = resolveEnvBaseUrl();
+  if (resolvedEnvBaseUrl) {
+    const primary = normalizeBaseUrl(resolvedEnvBaseUrl);
+    if (!__DEV__) {
+      const fallbacks = PROD_API_BASE_URLS.map(normalizeBaseUrl).filter(
+        (url) => url.toLowerCase() !== primary.toLowerCase()
+      );
+      return [primary, ...fallbacks];
+    }
+    return [primary];
+  }
+
+  if (!__DEV__) {
+    return PROD_API_BASE_URLS.map(normalizeBaseUrl);
+  }
+
+  return [normalizeBaseUrl(resolveDefaultBaseUrl())];
+};
+
+export const API_BASE_URL_FALLBACKS = resolveApiBaseUrls();
+
+export const API_BASE_URL = API_BASE_URL_FALLBACKS[0];
+
+export const getFallbackApiBaseUrl = (
+  currentBaseUrl?: string | null
+): string | null => {
+  if (API_BASE_URL_FALLBACKS.length < 2) {
+    return null;
+  }
+
+  if (!currentBaseUrl) {
+    return API_BASE_URL_FALLBACKS[1] ?? null;
+  }
+
+  const normalizedCurrent = normalizeBaseUrl(currentBaseUrl).toLowerCase();
+  const currentIndex = API_BASE_URL_FALLBACKS.findIndex(
+    (url) => url.toLowerCase() === normalizedCurrent
+  );
+
+  if (currentIndex === -1) {
+    return API_BASE_URL_FALLBACKS[0];
+  }
+
+  return API_BASE_URL_FALLBACKS[currentIndex + 1] ?? null;
+};

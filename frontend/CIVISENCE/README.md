@@ -21,10 +21,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 Set your backend base URL before launching the app:
 
 ```bash
-EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:5000/api
+EXPO_PUBLIC_API_BASE_URL=http://civisence.duckdns.org/api
 ```
 
 Notes:
+- If `EXPO_PUBLIC_API_BASE_URL` is not set, production builds default to `http://civisence.duckdns.org/api` and automatically retry `http://43.204.139.225/api` on network failure.
 - Android emulator usually needs `http://10.0.2.2:5000/api`.
 - Physical devices should use your machine LAN IP, for example `http://192.168.1.20:5000/api`.
 

@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL, API_BASE_URL_FALLBACKS } from "@/lib/config";
 import { sessionStore } from "@/lib/session";
 import { Platform } from "react-native";
 import { refreshSession } from "@/lib/services/authRefresh";
@@ -59,6 +59,8 @@ type Envelope<T> = {
   data: T;
 };
 
+let androidPreferredBaseUrl = API_BASE_URL;
+
 export type ComplaintQuery = {
   reportedBy?: string;
   status?: string;
@@ -86,6 +88,22 @@ const buildMimeType = (uri: string): string => {
 
 const toBackendCategory = (category: string): string =>
   category.trim().toLowerCase().replace(/\s+/g, "_");
+
+const getAndroidCandidateBaseUrls = (): string[] => {
+  const urls: string[] = [];
+
+  if (androidPreferredBaseUrl) {
+    urls.push(androidPreferredBaseUrl);
+  }
+
+  for (const url of API_BASE_URL_FALLBACKS) {
+    if (!urls.includes(url)) {
+      urls.push(url);
+    }
+  }
+
+  return urls;
+};
 
 export const createComplaint = async (
   input: CreateComplaintInput
@@ -124,21 +142,27 @@ export const createComplaint = async (
   };
 
   if (Platform.OS === "android") {
-    const endpoint = `${API_BASE_URL}/complaints`;
     const sendRequest = async (token?: string) => {
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: await buildFormData(),
-        });
-        return response;
-      } catch {
-        throw new Error("Network Error");
+      let lastError: Error | null = null;
+
+      for (const baseUrl of getAndroidCandidateBaseUrls()) {
+        try {
+          const response = await fetch(`${baseUrl}/complaints`, {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: await buildFormData(),
+          });
+          androidPreferredBaseUrl = baseUrl;
+          return response;
+        } catch {
+          lastError = new Error("Network Error");
+        }
       }
+
+      throw lastError ?? new Error("Network Error");
     };
 
     let response = await sendRequest(sessionStore.getAccessToken() || undefined);
