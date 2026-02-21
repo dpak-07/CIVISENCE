@@ -1,4 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+
+:root {
+  --bg-0: #020817;
+  --bg-1: #081330;
+  --bg-2: #0d1e4d;
+  --text: #e2f5ff;
+}
 
 * {
   box-sizing: border-box;
@@ -7,16 +15,119 @@
 html,
 body,
 #root {
-  width: 100%;
   min-height: 100%;
+  width: 100%;
 }
 
-html,
 body {
   margin: 0;
-  padding: 0;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 5%, rgba(34, 211, 238, 0.2), transparent 22%),
+    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.15), transparent 24%),
+    linear-gradient(140deg, var(--bg-0), var(--bg-1), var(--bg-2));
+  background-attachment: fixed;
 }
 
-body {
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Sora", "Manrope", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(203, 213, 225, 0.75);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.45);
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.35);
+}
+
+.landing-shell {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(34, 211, 238, 0.18), transparent 34%),
+    radial-gradient(circle at 90% 5%, rgba(56, 189, 248, 0.16), transparent 33%),
+    linear-gradient(150deg, #020617 0%, #04142f 45%, #071e49 100%);
+}
+
+.gradient-wave {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(68px);
+  pointer-events: none;
+}
+
+.wave-one {
+  width: 560px;
+  height: 560px;
+  left: -200px;
+  top: -120px;
+  background: rgba(56, 189, 248, 0.33);
+  animation: driftWaveOne 18s ease-in-out infinite;
+}
+
+.wave-two {
+  width: 620px;
+  height: 620px;
+  right: -230px;
+  bottom: -180px;
+  background: rgba(79, 70, 229, 0.28);
+  animation: driftWaveTwo 20s ease-in-out infinite;
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.4);
+}
+
+.leaflet-container {
+  font-family: "Manrope", sans-serif;
+  background: #020617;
+}
+
+@keyframes driftWaveOne {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(58px, -34px);
+  }
+}
+
+@keyframes driftWaveTwo {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-54px, 36px);
+  }
 }
